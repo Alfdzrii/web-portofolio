@@ -1,16 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
+import { motion, useInView, useAnimation, animate } from 'framer-motion'
 import moonIcon from './assets/moon.svg'
 import sunIcon from './assets/sun.svg'
 import heroImage from './assets/Alfadzri.jpeg'
 import './index.css'
 
-/* ── Google Fonts ─────────────────────────────────────────────── */
 const fl = document.createElement('link')
 fl.rel = 'stylesheet'
 fl.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap'
 document.head.appendChild(fl)
 
-/* ── Nav links with their target IDs ─────────────────────────── */
 const NAV_LINKS = [
   { label: 'About',        id: 'about' },
   { label: 'Experience',   id: 'experience' },
@@ -20,7 +19,6 @@ const NAV_LINKS = [
   { label: 'Contact',      id: 'contact' },
 ]
 
-/* ── Typewriter phrases ───────────────────────────────────────── */
 const PHRASES = [
   'Cyber Security Enthusiast',
   'Web Developer',
@@ -28,12 +26,46 @@ const PHRASES = [
   'Frontend Developer',
 ]
 
+/* ── Reveal animation wrapper ─────────────────────────────────── */
+function RevealSection({ children, delay = 0 }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-80px' })
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 50 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+/* ── ScrollSpy hook ────────────────────────────────────────────── */
+function useActiveSection(ids) {
+  const [active, setActive] = useState(ids[0])
+  useEffect(() => {
+    const observers = ids.map(id => {
+      const el = document.getElementById(id)
+      if (!el) return null
+      const obs = new IntersectionObserver(
+        ([entry]) => { if (entry.isIntersecting) setActive(id) },
+        { rootMargin: '-40% 0px -55% 0px' }
+      )
+      obs.observe(el)
+      return obs
+    })
+    return () => observers.forEach(o => o?.disconnect())
+  }, [ids])
+  return active
+}
+
 /* ═══════════════════════════════════════════════════════════════ */
 export default function App() {
   const [dark, setDark] = useState(
     () => window.matchMedia('(prefers-color-scheme: dark)').matches
   )
-
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark)
   }, [dark])
@@ -57,6 +89,8 @@ export default function App() {
 function Navbar({ dark, setDark }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const sectionIds = NAV_LINKS.map(l => l.id)
+  const active = useActiveSection(['home', ...sectionIds])
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20)
@@ -73,6 +107,8 @@ function Navbar({ dark, setDark }) {
   const glassDark = 'bg-[#0d0d14]/90 backdrop-blur-xl border-b border-white/10 shadow-lg shadow-black/30'
   const glassLight = 'bg-white/80 backdrop-blur-xl border-b border-gray-200/60 shadow-lg shadow-purple-100/40'
   const navBg = scrolled ? (dark ? glassDark : glassLight) : 'bg-transparent'
+
+  const isActive = (id) => active === id
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navBg}`}>
@@ -91,10 +127,29 @@ function Navbar({ dark, setDark }) {
           <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
             {NAV_LINKS.map(({ label, id }) => (
               <button key={id} onClick={() => scrollTo(id)}
-                className={`relative px-4 py-2 text-sm font-medium rounded-lg group transition-colors duration-200
-                  ${dark ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-purple-500/5'}`}>
+                className={`relative px-4 py-2 text-sm font-medium rounded-full transition-all duration-200
+                  ${isActive(id)
+                    ? dark
+                      ? 'bg-purple-500/20 text-purple-300 shadow-inner shadow-purple-500/10'
+                      : 'bg-purple-100 text-purple-700'
+                    : dark
+                      ? 'text-gray-400 hover:text-white hover:bg-white/5'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-purple-500/5'
+                  }`}>
                 {label}
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-purple-500 rounded-full transition-all duration-300 group-hover:w-4" />
+                {isActive(id) && (
+                  <motion.span
+                    layoutId="activeNav"
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background: dark
+                        ? 'rgba(139,92,246,0.15)'
+                        : 'rgba(139,92,246,0.1)',
+                      zIndex: -1,
+                    }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -121,7 +176,10 @@ function Navbar({ dark, setDark }) {
             {NAV_LINKS.map(({ label, id }) => (
               <button key={id} onClick={() => scrollTo(id)}
                 className={`text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
-                  ${dark ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-purple-500/5'}`}>
+                  ${isActive(id)
+                    ? dark ? 'text-purple-300 bg-purple-500/15' : 'text-purple-700 bg-purple-100'
+                    : dark ? 'text-gray-400 hover:text-white hover:bg-white/5' : 'text-gray-600 hover:text-gray-900 hover:bg-purple-500/5'
+                  }`}>
                 {label}
               </button>
             ))}
@@ -195,18 +253,47 @@ function HeroSection({ dark }) {
   const text = useTypewriter(PHRASES)
 
   const photoShadow = dark
-    ? '0 0 40px rgba(155,93,229,0.15)'
+    ? '0 0 40px rgba(155,93,229,0.25)'
     : '0 0 30px rgba(106,27,154,0.3)'
+
+  /* entrance variants */
+  const photoVariants = {
+    hidden: { opacity: 0, scale: 0.88 },
+    visible: {
+      opacity: 1, scale: 1,
+      transition: { duration: 0.8, ease: 'easeOut' }
+    }
+  }
+
+  const textVariants = {
+    hidden: { opacity: 0, x: 40 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.75, ease: 'easeOut', delay: 0.15 } }
+  }
+
+  /* floating animation */
+  const floatAnim = {
+    y: [0, -14, 0],
+    transition: { duration: 4, ease: 'easeInOut', repeat: Infinity, repeatType: 'loop' }
+  }
 
   return (
     <section id="home" className="min-h-screen flex items-center pt-20 pb-16 px-6 lg:px-10">
       <div className="max-w-7xl mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 lg:gap-20 items-center">
 
-          {/* ── LEFT: Photo ────────────────────────────────────── */}
-          <div className="flex justify-center lg:justify-start animate-fade-in-left order-1">
-            <div className="relative" style={{ willChange: 'transform' }}>
-
+          {/* LEFT: Photo */}
+          <motion.div
+            className="flex justify-center lg:justify-start order-1"
+            variants={photoVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {/* floating wrapper — starts after entrance */}
+            <motion.div
+              animate={floatAnim}
+              className="relative"
+              style={{ willChange: 'transform' }}
+            >
               {/* Ambient blob */}
               <div className="absolute -inset-10 rounded-[40px] blur-3xl opacity-50 pointer-events-none"
                 style={{
@@ -222,12 +309,9 @@ function HeroSection({ dark }) {
                   width: 'clamp(270px, 36vw, 420px)',
                   aspectRatio: '4/5',
                   boxShadow: photoShadow,
-                  willChange: 'transform',
                 }}>
                 <img src={heroImage} alt="Alfadzri"
                   className="w-full h-full object-cover object-top" />
-
-                {/* Bottom fade */}
                 <div className="absolute bottom-0 left-0 right-0 h-20 pointer-events-none"
                   style={{
                     background: dark
@@ -235,13 +319,16 @@ function HeroSection({ dark }) {
                       : 'linear-gradient(to top, rgba(255,255,255,0.25), transparent)',
                   }} />
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          {/* ── RIGHT: Text ────────────────────────────────────── */}
-          <div className="flex flex-col gap-6 text-left order-2 animate-fade-in-right" style={{ animationDelay: '0.12s' }}>
-
-            {/* Heading */}
+          {/* RIGHT: Text */}
+          <motion.div
+            className="flex flex-col gap-6 text-left order-2"
+            variants={textVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <h1 className="font-[Plus_Jakarta_Sans,sans-serif] font-extrabold leading-tight tracking-tight"
               style={{ fontSize: 'clamp(2.2rem, 4.8vw, 3.5rem)' }}>
               Hi, I'm{' '}
@@ -250,14 +337,12 @@ function HeroSection({ dark }) {
               </span>
             </h1>
 
-            {/* Typewriter */}
             <div className={`text-lg lg:text-xl font-semibold flex items-center gap-1 min-h-[2rem]
               ${dark ? 'text-purple-400' : 'text-purple-600'}`}>
               <span>{text}</span>
               <span className="animate-blink border-r-2 border-purple-500 h-5 inline-block" />
             </div>
 
-            {/* Description */}
             <p className={`text-base lg:text-lg leading-relaxed max-w-lg ${dark ? 'text-gray-400' : 'text-gray-600'}`}>
               I craft{' '}
               <span className={`font-medium ${dark ? 'text-gray-100' : 'text-gray-800'}`}>elegant digital experiences</span>
@@ -266,7 +351,6 @@ function HeroSection({ dark }) {
               {' '}web applications.
             </p>
 
-            {/* Tech pills */}
             <div className="flex flex-wrap gap-2">
               {['React', 'TypeScript', 'Tailwind CSS', 'Next.js', 'Node.js'].map(t => (
                 <span key={t}
@@ -278,7 +362,6 @@ function HeroSection({ dark }) {
               ))}
             </div>
 
-            {/* CTA Buttons */}
             <div className="flex flex-wrap gap-4 mt-1">
               <button onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })}
                 id="cta-view-projects"
@@ -303,7 +386,7 @@ function HeroSection({ dark }) {
                 Let's Talk
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -328,90 +411,93 @@ function AboutSection({ dark }) {
     <section id="about" className="py-24 px-6 lg:px-10">
       <div className="max-w-7xl mx-auto">
 
-        {/* Section label */}
-        <div className="flex items-center gap-3 mb-4">
-          <span className="h-px w-8 bg-purple-500" />
-          <span className={`text-sm font-semibold tracking-widest uppercase text-purple-500`}>
-            About Me
-          </span>
-        </div>
+        <RevealSection>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="h-px w-8 bg-purple-500" />
+            <span className="text-sm font-semibold tracking-widest uppercase text-purple-500">
+              About Me
+            </span>
+          </div>
 
-        <h2 className={`font-[Plus_Jakarta_Sans,sans-serif] font-bold mb-12
-          ${dark ? 'text-white' : 'text-gray-900'}`}
-          style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)' }}>
-          Passionate about building the web
-        </h2>
+          <h2 className={`font-[Plus_Jakarta_Sans,sans-serif] font-bold mb-12
+            ${dark ? 'text-white' : 'text-gray-900'}`}
+            style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)' }}>
+            Passionate about building the web
+          </h2>
+        </RevealSection>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-          {/* Left: bio text */}
-          <div className={`space-y-4 text-base leading-relaxed ${dark ? 'text-gray-400' : 'text-gray-600'}`}>
-            <p>
-              I'm a <span className={`font-semibold ${dark ? 'text-white' : 'text-gray-900'}`}>Frontend Developer</span> and
-              {' '}<span className={`font-semibold ${dark ? 'text-white' : 'text-gray-900'}`}>Cyber Security Enthusiast</span> based
-              in Indonesia. I love turning complex problems into simple, beautiful, and intuitive designs.
-            </p>
-            <p>
-              My interest spans across web development, artificial intelligence, and cyber security — always exploring
-              where these disciplines intersect to create secure, intelligent, and delightful user experiences.
-            </p>
-            <p>
-              When I'm not coding, you'll find me reading about the latest in security research or experimenting
-              with new frameworks and AI tools.
-            </p>
+          {/* Left: bio */}
+          <RevealSection delay={0.1}>
+            <div className={`space-y-4 text-base leading-relaxed ${dark ? 'text-gray-400' : 'text-gray-600'}`}>
+              <p>
+                I'm a <span className={`font-semibold ${dark ? 'text-white' : 'text-gray-900'}`}>Frontend Developer</span> and
+                {' '}<span className={`font-semibold ${dark ? 'text-white' : 'text-gray-900'}`}>Cyber Security Enthusiast</span> based
+                in Indonesia. I love turning complex problems into simple, beautiful, and intuitive designs.
+              </p>
+              <p>
+                My interest spans across web development, artificial intelligence, and cyber security — always exploring
+                where these disciplines intersect to create secure, intelligent, and delightful user experiences.
+              </p>
+              <p>
+                When I'm not coding, you'll find me reading about the latest in security research or experimenting
+                with new frameworks and AI tools.
+              </p>
 
-            {/* Social links */}
-            <div className="flex items-center gap-3 pt-4">
-              {[
-                { name: 'GitHub', href: 'https://github.com', svg: <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /> },
-                { name: 'LinkedIn', href: 'https://linkedin.com', svg: <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /> },
-                { name: 'Twitter', href: 'https://x.com', svg: <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.259 5.631L18.243 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z" /> },
-              ].map(({ name, href, svg }) => (
-                <a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={name}
-                  className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110
-                    ${dark
-                      ? 'text-gray-500 border-white/10 hover:text-purple-400 hover:bg-white/5 hover:border-purple-500/30'
-                      : 'text-gray-400 border-gray-200 hover:text-purple-600 hover:bg-purple-50 hover:border-purple-300'}`}>
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">{svg}</svg>
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: stats cards */}
-          <div className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              {stats.map(({ value, label }) => (
-                <div key={label} className={`${card} rounded-2xl p-5 text-center transition-all duration-200 hover:scale-105`}>
-                  <div className="text-2xl font-extrabold text-purple-500 font-[Plus_Jakarta_Sans,sans-serif]">{value}</div>
-                  <div className={`text-xs mt-1 font-medium ${dark ? 'text-gray-400' : 'text-gray-500'}`}>{label}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Skills */}
-            <div className={`${card} rounded-2xl p-6`}>
-              <h3 className={`text-sm font-semibold mb-4 ${dark ? 'text-gray-300' : 'text-gray-700'}`}>Core Skills</h3>
-              <div className="space-y-3">
+              <div className="flex items-center gap-3 pt-4">
                 {[
-                  { skill: 'Frontend Development', pct: 90 },
-                  { skill: 'Cyber Security', pct: 72 },
-                  { skill: 'Artificial Intelligence', pct: 65 },
-                ].map(({ skill, pct }) => (
-                  <div key={skill}>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className={dark ? 'text-gray-400' : 'text-gray-600'}>{skill}</span>
-                      <span className="text-purple-500 font-semibold">{pct}%</span>
-                    </div>
-                    <div className={`h-1.5 rounded-full ${dark ? 'bg-white/10' : 'bg-gray-100'}`}>
-                      <div className="h-full rounded-full bg-gradient-to-r from-purple-600 to-violet-500 transition-all duration-700"
-                        style={{ width: `${pct}%` }} />
-                    </div>
-                  </div>
+                  { name: 'GitHub', href: 'https://github.com', svg: <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" /> },
+                  { name: 'LinkedIn', href: 'https://linkedin.com', svg: <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" /> },
+                  { name: 'Twitter', href: 'https://x.com', svg: <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.259 5.631L18.243 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z" /> },
+                ].map(({ name, href, svg }) => (
+                  <a key={name} href={href} target="_blank" rel="noopener noreferrer" aria-label={name}
+                    className={`p-2.5 rounded-xl border transition-all duration-200 hover:scale-110
+                      ${dark
+                        ? 'text-gray-500 border-white/10 hover:text-purple-400 hover:bg-white/5 hover:border-purple-500/30'
+                        : 'text-gray-400 border-gray-200 hover:text-purple-600 hover:bg-purple-50 hover:border-purple-300'}`}>
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">{svg}</svg>
+                  </a>
                 ))}
               </div>
             </div>
-          </div>
+          </RevealSection>
+
+          {/* Right: stats + skills */}
+          <RevealSection delay={0.2}>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-4">
+                {stats.map(({ value, label }) => (
+                  <div key={label} className={`${card} rounded-2xl p-5 text-center transition-all duration-200 hover:scale-105`}>
+                    <div className="text-2xl font-extrabold text-purple-500 font-[Plus_Jakarta_Sans,sans-serif]">{value}</div>
+                    <div className={`text-xs mt-1 font-medium ${dark ? 'text-gray-400' : 'text-gray-500'}`}>{label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className={`${card} rounded-2xl p-6`}>
+                <h3 className={`text-sm font-semibold mb-4 ${dark ? 'text-gray-300' : 'text-gray-700'}`}>Core Skills</h3>
+                <div className="space-y-3">
+                  {[
+                    { skill: 'Frontend Development', pct: 90 },
+                    { skill: 'Cyber Security', pct: 72 },
+                    { skill: 'Artificial Intelligence', pct: 65 },
+                  ].map(({ skill, pct }) => (
+                    <div key={skill}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className={dark ? 'text-gray-400' : 'text-gray-600'}>{skill}</span>
+                        <span className="text-purple-500 font-semibold">{pct}%</span>
+                      </div>
+                      <div className={`h-1.5 rounded-full ${dark ? 'bg-white/10' : 'bg-gray-100'}`}>
+                        <div className="h-full rounded-full bg-gradient-to-r from-purple-600 to-violet-500 transition-all duration-700"
+                          style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </RevealSection>
         </div>
       </div>
     </section>
