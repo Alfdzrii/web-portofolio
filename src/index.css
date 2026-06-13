@@ -5,9 +5,70 @@
   0%, 100% { opacity: 1; }
   50%       { opacity: 0; }
 }
-
-.animate-blink { animation: blink 1s step-end infinite; }
+.animate-blink { animation: blink 0.75s step-end infinite; }
 
 /* ── Base ─────────────────────────────────────────────────────── */
 html { scroll-behavior: smooth; }
 body { margin: 0; }
+
+/* ── Persona 5: diagonal stripe accent ───────────────────────── */
+.p5-stripe {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 4px,
+    currentColor 4px,
+    currentColor 5px
+  );
+}
+
+/* ── Persona 5: sharp red underline ──────────────────────────── */
+.p5-underline {
+  position: relative;
+  display: inline-block;
+}
+.p5-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -4px;
+  width: 100%; height: 3px;
+  background: #dc2626;
+}
+
+/* ── Persona 5: scan-line overlay for photo ──────────────────── */
+.p5-scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+/* ── Persona 5: nav active indicator line ────────────────────── */
+.p5-nav-line::after {
+  content: '';
+  display: block;
+  height: 2px;
+  background: #dc2626;
+  width: 100%;
+  margin-top: 1px;
+}
+
+/* ── Progress bar fill animation ─────────────────────────────── */
+@keyframes fillBar {
+  from { width: 0%; }
+}
+.p5-bar { animation: fillBar 1.2s cubic-bezier(.4,0,.2,1) forwards; }
+
+/* ── Persona 5: corner-cut clip path ─────────────────────────── */
+.p5-clip {
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
