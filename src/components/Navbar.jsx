@@ -5,9 +5,8 @@ import sunIcon from '../assets/sun.svg'
 
 const NAV_LINKS = [
   { label: 'About',        id: 'about' },
-  { label: 'Experience',   id: 'experience' },
-  { label: 'Projects',     id: 'projects' },
   { label: 'Activities',   id: 'activities' },
+  { label: 'Projects',     id: 'projects' },
   { label: 'Certificates', id: 'certificates' },
   { label: 'Contact',      id: 'contact' },
 ]

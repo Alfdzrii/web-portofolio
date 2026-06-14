@@ -5,6 +5,7 @@ import {
 import { FaJava, FaNetworkWired, FaSearch } from 'react-icons/fa'
 import { GiMagnifyingGlass } from 'react-icons/gi'
 import { MdSecurity } from 'react-icons/md'
+import underwaterImg from '../assets/Underwater.jpeg'
 
 /* ── Viewport config: repeatable on every scroll pass ─────────── */
 const VP = { once: false, amount: 0.2 }
@@ -23,11 +24,7 @@ const SKILLS = [
   { name: 'FTK Imager',    Icon: FaSearch,          color: '#64748b' },
 ]
 
-const STATS = [
-  { value: '2+',  label: 'Years Experience' },
-  { value: '20+', label: 'Projects Built' },
-  { value: '10+', label: 'Technologies' },
-]
+/* STATS removed — replaced with underwater image */
 
 const SOCIALS = [
   { name: 'GitHub',   href: 'https://github.com',   d: 'M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z' },
@@ -37,8 +34,8 @@ const SOCIALS = [
 
 /* ── P5R Background Ornaments for About ─────────────────────── */
 function AboutBgOrnaments({ dark }) {
-  const col      = dark ? 'rgba(220,38,38,0.07)' : 'rgba(220,38,38,0.05)'
-  const colGray  = dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.04)'
+  const col      = dark ? 'rgba(220,38,38,0.22)' : 'rgba(220,38,38,0.18)'
+  const colGray  = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.10)'
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -73,7 +70,7 @@ function AboutBgOrnaments({ dark }) {
 
       {/* Diagonal slash strip — left edge */}
       <div
-        className="absolute top-0 left-[6%] h-full w-16 opacity-[0.045]"
+        className="absolute top-0 left-[6%] h-full w-16 opacity-[0.18]"
         style={{
           backgroundImage: `repeating-linear-gradient(
             -45deg,
@@ -87,7 +84,7 @@ function AboutBgOrnaments({ dark }) {
 
       {/* Halftone dots — bottom right */}
       <div
-        className="absolute bottom-0 right-0 w-80 h-80 opacity-[0.04]"
+        className="absolute bottom-0 right-0 w-80 h-80 opacity-[0.18]"
         style={{
           backgroundImage: `radial-gradient(circle, ${dark ? '#fff' : '#000'} 1px, transparent 1px)`,
           backgroundSize: '14px 14px',
@@ -109,13 +106,9 @@ function AboutBgOrnaments({ dark }) {
    ABOUT SECTION
 ═══════════════════════════════════════════════════════════════ */
 export default function About({ dark }) {
-  const card = dark
-    ? 'bg-zinc-800 border-2 border-zinc-700 hover:border-red-600/50'
-    : 'bg-white border-2 border-zinc-300 hover:border-red-600'
-
   const skillCard = dark
-    ? 'bg-zinc-800/80 border-2 border-zinc-700 text-zinc-300'
-    : 'bg-zinc-50 border-2 border-zinc-200 text-zinc-700'
+    ? 'bg-zinc-800/80 text-zinc-300'
+    : 'bg-zinc-100 text-zinc-700'
 
   return (
     <section
@@ -192,23 +185,36 @@ export default function About({ dark }) {
             </div>
           </motion.div>
 
-          {/* Right: stats */}
+          {/* Right: Underwater image — clean, no text overlay */}
           <motion.div
             initial={{ opacity: 0, x: 60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={VP}
             transition={{ duration: 0.65, ease: 'easeOut', delay: 0.2 }}
+            className="flex justify-center"
           >
-            <div className="grid grid-cols-3 gap-3">
-              {STATS.map(({ value, label }) => (
-                <div key={label} className={`${card} p-5 text-center transition-all duration-200 hover:scale-105`}>
-                  <div className="text-2xl font-black text-red-600 font-['Plus_Jakarta_Sans',sans-serif]">{value}</div>
-                  <div className={`text-xs mt-1 font-semibold uppercase tracking-wider ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-                    {label}
-                  </div>
-                </div>
-              ))}
-            </div>
+            {/* Image wrapper — hover triggers scale + red border */}
+            <motion.div
+              className="relative overflow-hidden"
+              style={{
+                boxShadow: '10px 10px 0px rgba(220,38,38,1)',
+                borderRadius: 0,
+                border: '4px solid transparent',
+              }}
+              whileHover={{
+                scale: 1.05,
+                border: '4px solid #dc2626',
+              }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+            >
+              <img
+                src={underwaterImg}
+                alt="Underwater scenery"
+                className="block w-full max-w-sm object-cover"
+                style={{ aspectRatio: '4/3', display: 'block' }}
+                draggable={false}
+              />
+            </motion.div>
           </motion.div>
         </div>
 
@@ -229,13 +235,30 @@ export default function About({ dark }) {
             {SKILLS.map(({ name, Icon, color }, i) => (
               <motion.div
                 key={name}
+                /* ── Scroll entrance: slow staggered fade-up ── */
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={VP}
-                transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }}
-                whileHover={{ scale: 1.07 }}
-                className={`flex flex-col items-center gap-2 p-4 border-2 cursor-default
-                  transition-colors duration-200 ${skillCard}`}
+                /* ── Hover: snappy 0.15 s — same as underwater image ── */
+                whileHover={{
+                  scale: 1.05,
+                  border: '2px solid #dc2626',
+                }}
+                transition={{
+                  /* Default (scroll entrance) */
+                  duration: 0.4,
+                  delay: i * 0.05,
+                  ease: 'easeOut',
+                  /* Per-property fast override for hover properties */
+                  scale:  { duration: 0.15, ease: 'easeOut' },
+                  border: { duration: 0.15, ease: 'easeOut' },
+                }}
+                className={`flex flex-col items-center gap-2 p-4 select-none ${skillCard}`}
+                style={{
+                  border: '2px solid transparent',  /* base: invisible border holds layout space */
+                  borderRadius: 0,                   /* sharp corners, P5R aesthetic */
+                  cursor: 'default',
+                }}
               >
                 <Icon style={{ color, fontSize: '2rem' }} />
                 <span className="text-xs font-black uppercase tracking-wider text-center leading-tight">{name}</span>

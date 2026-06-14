@@ -54,8 +54,8 @@ function useTypewriter(phrases, typeSpeed = 70, deleteSpeed = 40, pauseMs = 2000
 
 /* ── P5R Background Ornaments ────────────────────────────────── */
 function HeroBgOrnaments({ dark }) {
-  const col = dark ? 'rgba(220,38,38,0.06)' : 'rgba(220,38,38,0.05)'
-  const colGray = dark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.04)'
+  const col = dark ? 'rgba(220,38,38,0.22)' : 'rgba(220,38,38,0.18)'
+  const colGray = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)'
 
   return (
     /* Ornaments sit behind everything — pointer-events-none, overflow clipped */
@@ -95,7 +95,7 @@ function HeroBgOrnaments({ dark }) {
 
       {/* Diagonal slash lines strip — mid right */}
       <div
-        className="absolute top-0 right-[15%] h-full w-20 opacity-[0.04]"
+        className="absolute top-0 right-[15%] h-full w-20 opacity-[0.18]"
         style={{
           backgroundImage: `repeating-linear-gradient(
             -45deg,
@@ -122,7 +122,7 @@ function HeroBgOrnaments({ dark }) {
 
       {/* Tiny halftone dot grid — top right quadrant */}
       <div
-        className="absolute top-0 right-0 w-64 h-64 opacity-[0.045]"
+        className="absolute top-0 right-0 w-64 h-64 opacity-[0.18]"
         style={{
           backgroundImage: `radial-gradient(circle, ${dark ? '#fff' : '#000'} 1px, transparent 1px)`,
           backgroundSize: '14px 14px',

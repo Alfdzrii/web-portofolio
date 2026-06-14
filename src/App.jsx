@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Hero  from './components/Hero'
 import About from './components/About'
+import Activities from './components/Activities'
 import './index.css'
 
 /* ── Google Fonts ────────────────────────────────────────────── */
@@ -27,6 +28,7 @@ export default function App() {
       <Navbar dark={dark} setDark={setDark} />
       <Hero  dark={dark} />
       <About dark={dark} />
+      <Activities dark={dark} />
     </div>
   )
 }
