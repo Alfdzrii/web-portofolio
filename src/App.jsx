@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import Hero  from './components/Hero'
 import About from './components/About'
 import Activities from './components/Activities'
+import Projects from './components/Projects'
 import './index.css'
 
 /* ── Google Fonts ────────────────────────────────────────────── */
@@ -29,6 +30,7 @@ export default function App() {
       <Hero  dark={dark} />
       <About dark={dark} />
       <Activities dark={dark} />
+      <Projects dark={dark} />
     </div>
   )
 }
