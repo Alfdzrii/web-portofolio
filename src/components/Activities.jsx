@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { createPortal } from 'react-dom'
 
 import ctrlpDoc   from '../assets/CTRLP_doc.jpg'
 import ctrlpPost  from '../assets/CTRLP_poster.jpeg'
@@ -14,7 +15,15 @@ import pufa       from '../assets/PUFA.jpeg'
 /* ── Viewport config: repeatable on every scroll pass ──────────── */
 const VP = { once: false, amount: 0.15 }
 
-/* ── Slide data ──────────────────────────────────────────────── */
+/* ── Spring transition: buttery smooth, no stutter ─────────────── */
+const SPRING = {
+  type: 'spring',
+  stiffness: 280,
+  damping: 34,
+  mass: 0.9,
+}
+
+/* ── Slide data ──────────────────────────────────────────────────── */
 const SLIDES = [
   {
     id: 0,
@@ -22,7 +31,8 @@ const SLIDES = [
     title: 'CTRL+P Workshop',
     subtitle: 'Documentation',
     tag: 'EVENT',
-    description: 'Behind-the-scenes documentation of the CTRL+P tech workshop, capturing every key moment and outcome.',
+    description:
+      'Behind-the-scenes documentation of the CTRL+P tech workshop, capturing every key moment and outcome.',
   },
   {
     id: 1,
@@ -30,7 +40,8 @@ const SLIDES = [
     title: 'CTRL+P Workshop',
     subtitle: 'Promotional Poster',
     tag: 'DESIGN',
-    description: 'Official promotional material for the CTRL+P event — bold visuals, strong call-to-action.',
+    description:
+      'Official promotional material for the CTRL+P event — bold visuals, strong call-to-action.',
   },
   {
     id: 2,
@@ -38,7 +49,8 @@ const SLIDES = [
     title: 'CompStud Community',
     subtitle: 'Study Group Activity',
     tag: 'COMMUNITY',
-    description: 'Active participation in the CompStud community, fostering collaborative learning and peer mentorship.',
+    description:
+      'Active participation in the CompStud community, fostering collaborative learning and peer mentorship.',
   },
   {
     id: 3,
@@ -46,7 +58,8 @@ const SLIDES = [
     title: 'Event Operations',
     subtitle: 'Organizer Role',
     tag: 'ORGANIZING',
-    description: 'Served as an event organizer, coordinating logistics and ensuring seamless execution.',
+    description:
+      'Served as an event organizer, coordinating logistics and ensuring seamless execution.',
   },
   {
     id: 4,
@@ -54,7 +67,8 @@ const SLIDES = [
     title: 'Logistics Division',
     subtitle: 'Coordination & Supply',
     tag: 'LOGISTICS',
-    description: 'Managed logistics operations including resource allocation and on-ground coordination.',
+    description:
+      'Managed logistics operations including resource allocation and on-ground coordination.',
   },
   {
     id: 5,
@@ -62,7 +76,8 @@ const SLIDES = [
     title: 'Master of Ceremony',
     subtitle: 'Live Event Hosting',
     tag: 'PUBLIC SPEAKING',
-    description: 'Hosted a major campus event as MC — commanding the stage with energy and professionalism.',
+    description:
+      'Hosted a major campus event as MC — commanding the stage with energy and professionalism.',
   },
   {
     id: 6,
@@ -70,7 +85,8 @@ const SLIDES = [
     title: 'Master of Ceremony II',
     subtitle: 'Multi-Event Hosting',
     tag: 'PUBLIC SPEAKING',
-    description: 'Second major hosting role, showcasing growth in stage presence and audience engagement.',
+    description:
+      'Second major hosting role, showcasing growth in stage presence and audience engagement.',
   },
   {
     id: 7,
@@ -78,7 +94,8 @@ const SLIDES = [
     title: 'Project Management',
     subtitle: 'Team Leadership',
     tag: 'LEADERSHIP',
-    description: 'Led a cross-functional student project team, applying agile methods and strategic planning.',
+    description:
+      'Led a cross-functional student project team, applying agile methods and strategic planning.',
   },
   {
     id: 8,
@@ -86,19 +103,18 @@ const SLIDES = [
     title: 'PUFA Division',
     subtitle: 'Student Union Activity',
     tag: 'ORGANIZATION',
-    description: 'Active member of the PUFA student division, contributing to campus-wide programs and initiatives.',
+    description:
+      'Active member of the PUFA student division, contributing to campus-wide programs and initiatives.',
   },
 ]
 
-/* ── P5R Background Ornaments for Activities ──────────────────── */
+/* ── P5R Background Ornaments ────────────────────────────────────── */
 function ActivitiesBgOrnaments({ dark }) {
   const col     = dark ? 'rgba(220,38,38,0.20)' : 'rgba(220,38,38,0.16)'
   const colGray = dark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-
-      {/* Large rotating hexagon — top-left */}
       <motion.div
         className="absolute -top-20 -left-20"
         animate={{ rotate: [0, 360] }}
@@ -112,7 +128,6 @@ function ActivitiesBgOrnaments({ dark }) {
         </svg>
       </motion.div>
 
-      {/* Small counter-rotating square — bottom-right */}
       <motion.div
         className="absolute -bottom-16 -right-16"
         animate={{ rotate: [0, -360] }}
@@ -125,7 +140,6 @@ function ActivitiesBgOrnaments({ dark }) {
         </svg>
       </motion.div>
 
-      {/* Diagonal slash strip — right edge */}
       <div
         className="absolute top-0 right-[8%] h-full w-16 opacity-[0.18]"
         style={{
@@ -139,7 +153,6 @@ function ActivitiesBgOrnaments({ dark }) {
         }}
       />
 
-      {/* Halftone dots — top left */}
       <div
         className="absolute top-0 left-0 w-72 h-72 opacity-[0.18]"
         style={{
@@ -148,7 +161,6 @@ function ActivitiesBgOrnaments({ dark }) {
         }}
       />
 
-      {/* Oscillating accent line */}
       <motion.div
         className="absolute left-0 right-0 h-px"
         style={{ top: '62%', background: col }}
@@ -156,7 +168,6 @@ function ActivitiesBgOrnaments({ dark }) {
         transition={{ duration: 10, ease: 'easeInOut', repeat: Infinity }}
       />
 
-      {/* Rotating small accent box — center right */}
       <motion.div
         className="absolute top-1/2 right-[10%]"
         style={{ translateY: '-50%' }}
@@ -169,14 +180,94 @@ function ActivitiesBgOrnaments({ dark }) {
   )
 }
 
-/* ── Cover-Flow Carousel ─────────────────────────────────────── */
+/* ── Mobile Info Modal ───────────────────────────────────────────── */
+function InfoModal({ slide, onClose }) {
+  return createPortal(
+    <AnimatePresence>
+      <motion.div
+        key="backdrop"
+        id="modal-backdrop"
+        className="fixed inset-0 z-50 flex items-center justify-center p-6"
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        onClick={onClose}
+      >
+        <motion.div
+          key="modal"
+          className="relative w-full max-w-sm overflow-hidden"
+          style={{
+            background: '#18181b',
+            border: '2px solid #dc2626',
+            boxShadow: '8px 8px 0 #dc2626',
+          }}
+          initial={{ scale: 0.88, opacity: 0, y: 20 }}
+          animate={{ scale: 1,    opacity: 1, y: 0  }}
+          exit={{    scale: 0.88, opacity: 0, y: 20 }}
+          transition={SPRING}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Image header */}
+          <div className="relative h-44 overflow-hidden">
+            <img
+              src={slide.img}
+              alt={slide.title}
+              className="w-full h-full object-cover"
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)',
+              }}
+            />
+            {/* Tag badge */}
+            <span
+              className="absolute bottom-3 left-3 bg-red-600 text-white text-[10px]
+                font-black tracking-[0.2em] uppercase px-2 py-0.5"
+            >
+              {slide.tag}
+            </span>
+          </div>
 
+          {/* Body */}
+          <div className="p-5 space-y-3">
+            <h3 className="text-white font-black text-lg uppercase tracking-tight leading-tight">
+              {slide.title}
+            </h3>
+            <p className="text-zinc-400 text-xs font-semibold tracking-wider uppercase">
+              {slide.subtitle}
+            </p>
+            <p className="text-zinc-300 text-sm leading-relaxed">
+              {slide.description}
+            </p>
+          </div>
+
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center
+              bg-black/60 text-white font-black text-sm border border-zinc-700
+              hover:bg-red-600 hover:border-red-600 transition-colors duration-150"
+          >
+            ✕
+          </button>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>,
+    document.body
+  )
+}
+
+/* ── ActiveCard ──────────────────────────────────────────────────── */
 /*
- * ActiveCard — the center image with the P5R diagonal reveal.
- * `hovered` is passed in as a boolean from the parent so that the
- * AnimatePresence slide wrapper doesn't break variant propagation.
+ * Desktop: diagonal P5R reveal on hover.
+ * Mobile:  Info button that opens the InfoModal.
  */
-function ActiveCard({ slide, hovered }) {
+function ActiveCard({ slide, hovered, onInfoClick }) {
   return (
     <div className="relative w-full h-full overflow-hidden select-none" style={{ borderRadius: 0 }}>
 
@@ -212,24 +303,16 @@ function ActiveCard({ slide, hovered }) {
         </p>
       </div>
 
-      {/*
-        P5R Diagonal Reveal overlay.
-        Uses `animate` driven by the `hovered` boolean (not a variant string)
-        to avoid the variant-propagation gap caused by the AnimatePresence wrapper.
-
-        REST  : clipPath pinched to a zero-area point at the top-right corner.
-        HOVER : expands to a right-triangle covering the upper-right ~50% of the card.
-      */}
+      {/* ── Desktop-only diagonal P5R reveal overlay ── */}
       <motion.div
-        className="absolute inset-0 bg-red-600 z-20 pointer-events-none"
+        className="absolute inset-0 bg-red-600 z-20 pointer-events-none hidden md:block"
         animate={{
           clipPath: hovered
             ? 'polygon(100% 0%, 30% 100%, 100% 100%)'
             : 'polygon(100% 0%, 100% 0%, 100% 0%)',
         }}
-        transition={{ duration: 0.38, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.36, ease: [0.4, 0, 0.2, 1] }}
       >
-        {/* Text inside the red region — fades in after the shape opens */}
         <motion.p
           className="text-white font-black text-xs lg:text-sm leading-snug"
           style={{
@@ -238,29 +321,47 @@ function ActiveCard({ slide, hovered }) {
             right: '5%',
             maxWidth: '9rem',
             textAlign: 'right',
-            transform: 'rotate(0deg)',
             textShadow: '0 2px 8px rgba(0,0,0,0.4)',
           }}
           animate={{ opacity: hovered ? 1 : 0 }}
-          transition={{ duration: 0.2, delay: hovered ? 0.22 : 0 }}
+          transition={{ duration: 0.2, delay: hovered ? 0.2 : 0 }}
         >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          {slide.description}
         </motion.p>
       </motion.div>
+
+      {/* ── Mobile-only Info button ── */}
+      <button
+        onClick={onInfoClick}
+        className="absolute bottom-16 right-4 z-30 md:hidden
+          bg-red-600 text-white font-black text-[11px] tracking-widest uppercase
+          px-3 py-1.5 flex items-center gap-1.5
+          border-2 border-white/20 hover:bg-red-700 transition-colors duration-150"
+        aria-label="View description"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+          className="w-3.5 h-3.5">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4M12 8h.01" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Info
+      </button>
     </div>
   )
 }
 
+/* ── Carousel ────────────────────────────────────────────────────── */
 function Carousel({ dark }) {
-  const [index,   setIndex] = useState(0)
-  const [direction, setDir] = useState(1)
-  const [hovered, setHov]   = useState(false)  // drives the diagonal reveal
+  const [index,     setIndex] = useState(0)
+  const [direction, setDir]   = useState(1)
+  const [hovered,   setHov]   = useState(false)
+  const [modalOpen, setModal] = useState(false)
 
   const go = useCallback((next) => {
     const raw = ((next % SLIDES.length) + SLIDES.length) % SLIDES.length
     setDir(next > index ? 1 : -1)
     setIndex(raw)
-    setHov(false)   // reset hover state on navigation so reveal collapses
+    setHov(false)
   }, [index])
 
   const prev = () => go(index - 1)
@@ -275,32 +376,22 @@ function Carousel({ dark }) {
     ? `${btnBase} border-red-600 text-red-500 hover:bg-red-600 hover:text-white`
     : `${btnBase} border-black text-black hover:bg-black hover:text-white`
 
-  const enterX = direction > 0 ? '100%' : '-100%'
-  const exitX  = direction > 0 ? '-100%' : '100%'
+  /* ── slide x-variants driven by direction ── */
+  const variants = {
+    enter:  (dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0.6 }),
+    center: ()    => ({ x: 0,   opacity: 1   }),
+    exit:   (dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0.6 }),
+  }
 
-  /*
-   * TRACK HEIGHT — fixed so that scale() on the side cards never
-   * pushes or pulls the center card vertically.
-   *
-   * The active card fills 56% of the track width (flex-1 ≈ 56% when
-   * side cards are 22% each with 12px gaps). At 16:9 that's roughly
-   * 0.5625 × 56vw. A fixed h-[340px] works well for ≥68vw containers.
-   * We use inline style so it’s one source of truth.
-   */
-  const TRACK_H = 340   // px — change here if you want taller cards
+  const TRACK_H = 340  // px
 
   return (
     <div className="flex flex-col items-center gap-6 w-full">
 
-      {/* ── Fixed-height three-card track ──
-          `position: relative` on the outer div + absolute children
-          guarantees no layout shift when cards scale.
-      */}
-      <div
-        className="relative w-full"
-        style={{ height: TRACK_H }}
-      >
-        {/* ── PREV ghost (left) ── */}
+      {/* ── Fixed-height three-card track ── */}
+      <div className="relative w-full" style={{ height: TRACK_H }}>
+
+        {/* PREV ghost */}
         <motion.div
           key={`prev-${prevIdx}`}
           className="absolute top-1/2 left-0 cursor-pointer overflow-hidden"
@@ -308,11 +399,11 @@ function Carousel({ dark }) {
             width: '22%',
             aspectRatio: '16/9',
             borderRadius: 0,
-            translateY: '-50%',       // CSS var, framer keeps it in transform
+            translateY: '-50%',
             transformOrigin: 'center center',
           }}
           animate={{ opacity: 0.45, scale: 0.75 }}
-          transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+          transition={SPRING}
           onClick={prev}
           title="Previous"
         >
@@ -325,7 +416,7 @@ function Carousel({ dark }) {
           <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         </motion.div>
 
-        {/* ── ACTIVE center card ── */}
+        {/* ACTIVE center card */}
         <div
           className="absolute top-0 bottom-0 overflow-hidden cursor-pointer"
           style={{
@@ -336,7 +427,7 @@ function Carousel({ dark }) {
           onMouseEnter={() => setHov(true)}
           onMouseLeave={() => setHov(false)}
         >
-          {/* Index counter — always on top */}
+          {/* Index counter */}
           <div
             className="absolute top-3 left-3 z-30 bg-black/70 backdrop-blur-sm
               border border-red-600 px-3 py-1 text-white text-xs font-black tracking-widest"
@@ -345,23 +436,32 @@ function Carousel({ dark }) {
             {String(index + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
           </div>
 
-          {/* Slide transition */}
-          <AnimatePresence initial={false} custom={direction} mode="sync">
+          {/*
+            AnimatePresence mode="popLayout":
+            The exiting slide is immediately removed from layout flow so there is
+            zero layout shift, then the entering slide springs into place.
+          */}
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
             <motion.div
               key={index}
-              className="absolute inset-0"   /* absolute so exiting slide doesn't push height */
+              className="absolute inset-0"
               custom={direction}
-              initial={{ x: enterX, opacity: 0.7 }}
-              animate={{ x: 0,       opacity: 1   }}
-              exit={{    x: exitX,   opacity: 0.7 }}
-              transition={{ duration: 0.38, ease: [0.4, 0, 0.2, 1] }}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={SPRING}
             >
-              <ActiveCard slide={SLIDES[index]} hovered={hovered} />
+              <ActiveCard
+                slide={SLIDES[index]}
+                hovered={hovered}
+                onInfoClick={() => setModal(true)}
+              />
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* ── NEXT ghost (right) ── */}
+        {/* NEXT ghost */}
         <motion.div
           key={`next-${nextIdx}`}
           className="absolute top-1/2 right-0 cursor-pointer overflow-hidden"
@@ -373,7 +473,7 @@ function Carousel({ dark }) {
             transformOrigin: 'center center',
           }}
           animate={{ opacity: 0.45, scale: 0.75 }}
-          transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+          transition={SPRING}
           onClick={next}
           title="Next"
         >
@@ -387,7 +487,7 @@ function Carousel({ dark }) {
         </motion.div>
       </div>
 
-      {/* ── Caption row ── */}
+      {/* ── Caption row (visible on desktop, hidden on mobile since modal covers it) ── */}
       <div className={`w-full max-w-3xl px-1 ${dark ? 'text-zinc-300' : 'text-zinc-700'}`}>
         <AnimatePresence mode="wait">
           <motion.p
@@ -396,7 +496,7 @@ function Carousel({ dark }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{    opacity: 0, y: -8 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
           >
             {SLIDES[index].description}
           </motion.p>
@@ -426,13 +526,18 @@ function Carousel({ dark }) {
 
         <button onClick={next} className={btnStyle} aria-label="Next slide">→</button>
       </div>
+
+      {/* ── Mobile Info Modal portal ── */}
+      {modalOpen && (
+        <InfoModal slide={SLIDES[index]} onClose={() => setModal(false)} />
+      )}
     </div>
   )
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════════
    ACTIVITIES SECTION
-═══════════════════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════════════════ */
 export default function Activities({ dark }) {
   return (
     <section
@@ -440,12 +545,11 @@ export default function Activities({ dark }) {
       className={`relative py-24 px-6 lg:px-10
         ${dark ? 'bg-black' : 'bg-white'}`}
     >
-      {/* P5R background ornaments */}
       <ActivitiesBgOrnaments dark={dark} />
 
       <div className="relative z-10 max-w-7xl mx-auto">
 
-        {/* ── Heading ── */}
+        {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -471,7 +575,7 @@ export default function Activities({ dark }) {
           </p>
         </motion.div>
 
-        {/* ── Carousel ── */}
+        {/* Carousel */}
         <motion.div
           initial={{ opacity: 0, y: 60 }}
           whileInView={{ opacity: 1, y: 0 }}
