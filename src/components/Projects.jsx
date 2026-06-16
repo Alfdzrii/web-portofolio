@@ -127,14 +127,6 @@ function ExternalIcon() {
 }
 
 /* ── Project Card — compact size ─────────────────────────────────── */
-/*
- * Key size reductions vs previous version:
- *  - Image minHeight: 180px (was 240px)
- *  - Content padding: p-5 lg:p-6 (was p-8 lg:p-10)
- *  - Title font-size clamped smaller
- *  - Gap between cards: gap-4 (was gap-8)
- *  - max-w-5xl container (was max-w-7xl full bleed)
- */
 function ProjectCard({ project, dark, index }) {
   const isEven = index % 2 === 0
 
@@ -301,10 +293,6 @@ export default function Projects({ dark }) {
           >
             Things I've <span className="text-red-600">Built</span>
           </h2>
-          <p className={`text-sm mb-10 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-            A curated selection of projects spanning AI, web development, and cybersecurity —
-            each one solving a real problem with clean, purposeful code.
-          </p>
         </motion.div>
 
         {/* Cards — compact gap */}

@@ -3,13 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { createPortal } from 'react-dom'
 
 import ctrlpDoc   from '../assets/CTRLP_doc.jpg'
-import ctrlpPost  from '../assets/CTRLP_poster.jpeg'
 import compstud   from '../assets/Compstud.jpg'
 import eo         from '../assets/EO.jpeg'
 import logist     from '../assets/LOGIST.jpeg'
-import mc1        from '../assets/MC.jpeg'
-import mc2        from '../assets/MC2.jpeg'
-import pm         from '../assets/PM.jpeg'
 import pufa       from '../assets/PUFA.jpeg'
 
 /* ── Viewport config ────────────────────────────────────────────── */
@@ -22,52 +18,32 @@ const SPRING = { type: 'spring', stiffness: 280, damping: 34, mass: 0.9 }
 const SLIDES = [
   {
     id: 0, img: ctrlpDoc,
-    title: 'CTRL+P Workshop', subtitle: 'Documentation', tag: 'EVENT',
-    description: 'Behind-the-scenes documentation of the CTRL+P tech workshop, capturing every key moment and outcome.',
-  },
-  {
-    id: 1, img: ctrlpPost,
-    title: 'CTRL+P Workshop', subtitle: 'Promotional Poster', tag: 'DESIGN',
-    description: 'Official promotional material for the CTRL+P event — bold visuals, strong call-to-action.',
+    title: 'CTRL P + CTRL F', subtitle: 'Project Manager & Master of Ceremony', tag: 'Seminar',
+    description: 'Serve as Project Manager and Master of Ceremony at CTRL P + CTRL F 2025. Responsible for planning, organizing, leading, and executing the event ',
   },
   {
     id: 2, img: compstud,
-    title: 'CompStud Community', subtitle: 'Study Group Activity', tag: 'COMMUNITY',
-    description: 'Active participation in the CompStud community, fostering collaborative learning and peer mentorship.',
+    title: 'COMPARATIVE STUDY PUFA 2025', subtitle: 'Student Activity', tag: 'Project Manager',
+    description: 'Serve as Project manager at Comstud PUFA 2025 with BEM FMIPA UGM 2025. Responsible for planning, organizing, and executing the event ',
   },
   {
     id: 3, img: eo,
-    title: 'Event Operations', subtitle: 'Organizer Role', tag: 'ORGANIZING',
+    title: 'Grand Inaugurations', subtitle: 'Member Of EO Teams at Grand Inaugurations', tag: 'Event',
     description: 'Served as an event organizer, coordinating logistics and ensuring seamless execution.',
   },
   {
     id: 4, img: logist,
-    title: 'Logistics Division', subtitle: 'Coordination & Supply', tag: 'LOGISTICS',
+    title: 'Compsphere 2025', subtitle: 'Person In Charge of Logistics', tag: 'LOGISTICS',
     description: 'Managed logistics operations including resource allocation and on-ground coordination.',
   },
   {
-    id: 5, img: mc1,
-    title: 'Master of Ceremony', subtitle: 'Live Event Hosting', tag: 'PUBLIC SPEAKING',
-    description: 'Hosted a major campus event as MC — commanding the stage with energy and professionalism.',
-  },
-  {
-    id: 6, img: mc2,
-    title: 'Master of Ceremony II', subtitle: 'Multi-Event Hosting', tag: 'PUBLIC SPEAKING',
-    description: 'Second major hosting role, showcasing growth in stage presence and audience engagement.',
-  },
-  {
-    id: 7, img: pm,
-    title: 'Project Management', subtitle: 'Team Leadership', tag: 'LEADERSHIP',
-    description: 'Led a cross-functional student project team, applying agile methods and strategic planning.',
-  },
-  {
     id: 8, img: pufa,
-    title: 'PUFA Division', subtitle: 'Student Union Activity', tag: 'ORGANIZATION',
-    description: 'Active member of the PUFA student division, contributing to campus-wide programs and initiatives.',
+    title: 'PUFA 2025', subtitle: 'Member of External Division', tag: 'ORGANIZATION',
+    description: 'Active member of the President University faculty Association 2025, contributing to Faculty through programs and Events.',
   },
 ]
 
-/* ── P5R Background Ornaments ───────────────────────────────────── */
+/*  Background Ornaments  */
 function ActivitiesBgOrnaments({ dark }) {
   const col     = dark ? 'rgba(220,38,38,0.20)' : 'rgba(220,38,38,0.16)'
   const colGray = dark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'
@@ -104,7 +80,7 @@ function ActivitiesBgOrnaments({ dark }) {
   )
 }
 
-/* ── Info Modal (universal — desktop + mobile) ──────────────────── */
+/* Info (universal — desktop + mobile) */
 function InfoModal({ slide, onClose }) {
   return createPortal(
     <AnimatePresence>
@@ -168,11 +144,6 @@ function InfoModal({ slide, onClose }) {
 }
 
 /* ── Inline circular 'i' button ─────────────────────────────────── */
-/*
- * Rendered inside the active card, top-right corner.
- * Visible on BOTH desktop and mobile — no md: gating.
- * z-40 sits above the P5R diagonal overlay (z-20).
- */
 function InfoButton({ onClick }) {
   return (
     <motion.button
@@ -438,7 +409,7 @@ export default function Activities({ dark }) {
           </h2>
           <p className={`text-sm mb-12 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             A snapshot of events, organizations, and experiences that shaped who I am
-            outside the code editor — from campus leadership to community involvement.
+            outside the code editor from campus leadership to community involvement.
           </p>
         </motion.div>
 

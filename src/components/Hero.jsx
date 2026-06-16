@@ -205,7 +205,7 @@ export default function Hero({ dark }) {
               {/* ALFADZRI watermark — z-20 ensures it sits above the P5 offset shadow */}
               <div className="absolute -bottom-3 -right-3 z-20 bg-red-600 px-3 py-1
                 text-white text-xs font-black tracking-widest uppercase">
-                ALFADZRI
+                ALFADZRI ABHIPRAYA
               </div>
             </motion.div>
           </motion.div>
@@ -230,7 +230,7 @@ export default function Hero({ dark }) {
               style={{ fontSize: 'clamp(2.6rem, 5.5vw, 4rem)' }}
             >
               Hi, I'm{' '}
-              <span className="text-red-600">Alfadzri</span>
+              <span className="text-red-600">Alfadzri.A</span>
             </h1>
 
             {/* Typewriter */}
@@ -245,13 +245,11 @@ export default function Hero({ dark }) {
             <p className={`text-sm lg:text-base leading-relaxed max-w-lg
               ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}
             >
-              I craft{' '}
-              <span className={`font-semibold ${dark ? 'text-zinc-100' : 'text-black'}`}>elegant digital experiences</span>
-              {' '}that combine minimalist aesthetics with robust engineering. Focusing on building{' '}
-              <span className={`font-semibold ${dark ? 'text-zinc-100' : 'text-black'}`}>intuitive and dynamic</span>
-              {' '}web applications.
+              I create{' '}
+              <span className={`font-semibold ${dark ? 'text-zinc-100' : 'text-black'}`}>Digital Experiences</span>
+              {' '}that minimalist, robust and secure. Focusing on building{' '}
+              <span className={`font-semibold ${dark ? 'text-zinc-100' : 'text-black'}`}>Cyber Security and Digital Forensic</span>.
             </p>
-
             {/* CTAs */}
             <div className="flex flex-wrap gap-4 mt-1">
               <button

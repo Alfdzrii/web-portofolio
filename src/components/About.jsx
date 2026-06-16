@@ -32,7 +32,7 @@ const SOCIALS = [
   { name: 'Twitter',  href: 'https://x.com',        d: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.259 5.631L18.243 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z' },
 ]
 
-/* ── P5R Background Ornaments for About ─────────────────────── */
+/* Background Ornaments  */
 function AboutBgOrnaments({ dark }) {
   const col      = dark ? 'rgba(220,38,38,0.22)' : 'rgba(220,38,38,0.18)'
   const colGray  = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.10)'
@@ -138,11 +138,11 @@ export default function About({ dark }) {
             style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)' }}
           >
             Passionate about{' '}
-            <span className="text-red-600">building the web</span>
+            <span className="text-red-600">Cyber Security</span>
           </h2>
         </motion.div>
 
-        {/* ── Bio + Stats grid ───────────────────────────────── */}
+        {/*  Bio   */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
           {/* Left: bio */}
@@ -154,17 +154,13 @@ export default function About({ dark }) {
             className={`space-y-4 text-sm leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}
           >
             <p>
-              I'm a <span className={`font-black ${dark ? 'text-white' : 'text-black'}`}>Frontend Developer</span> and{' '}
-              <span className={`font-black ${dark ? 'text-white' : 'text-black'}`}>Cyber Security Enthusiast</span> based
-              in Indonesia. I love turning complex problems into simple, beautiful, and intuitive designs.
+              I'm a  
+              <span className={`font-black ${dark ? 'text-white' : 'text-black'}`}> Cyber Security Enthusiast</span> based
+              in Indonesia. Someone who can easily lose themselves in their work, is sociable and a good team player, and will work on a task until they lose track of time.
+              
             </p>
             <p>
-              My interest spans across web development, artificial intelligence, and cyber security — always exploring
-              where these disciplines intersect to create secure, intelligent, and delightful user experiences.
-            </p>
-            <p>
-              When I'm not coding, you'll find me reading about the latest in security research or experimenting
-              with new frameworks and AI tools.
+              My interest spans across Software Development, artificial intelligence, and cyber security. I'm always exploring new field at technology where these disciplines intersect to create secure, intelligent, and reliable systems.
             </p>
 
             {/* Social icons */}

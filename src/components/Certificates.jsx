@@ -1,8 +1,12 @@
-import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useState, useRef } from 'react'
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
+import { createPortal } from 'react-dom'
+
+import placeholder from '../assets/project_placeholder.png'
 
 /* ── Viewport config ────────────────────────────────────────────── */
-const VP = { once: false, amount: 0.15 }
+const VP     = { once: false, amount: 0.15 }
+const SPRING = { type: 'spring', stiffness: 280, damping: 34, mass: 0.9 }
 
 /* ── Certificate data ───────────────────────────────────────────── */
 const CERTS = [
@@ -13,19 +17,13 @@ const CERTS = [
     issuer: 'Samsung · Batch 7',
     date: 'November 2025',
     status: 'COMPLETED',
-    statusColor: '#16a34a',   // green
+    statusColor: '#16a34a',
     tag: 'PROGRAMMING',
     tagColor: '#7c3aed',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-        strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-        <polyline points="16 18 22 12 16 6" />
-        <polyline points="8 6 2 12 8 18" />
-      </svg>
-    ),
     description:
       'Completed intensive Python programming curriculum covering data structures, algorithms, and applied machine learning fundamentals.',
     accent: '#7c3aed',
+    img: placeholder,
   },
   {
     id: 1,
@@ -34,19 +32,13 @@ const CERTS = [
     issuer: 'Ministry of Communication · Indonesia',
     date: 'August 2025',
     status: 'REGISTERED',
-    statusColor: '#0891b2',  // cyan
+    statusColor: '#0891b2',
     tag: 'SCHOLARSHIP',
     tagColor: '#0891b2',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-        strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-        <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-        <path d="M6 12v5c3 3 9 3 12 0v-5" />
-      </svg>
-    ),
     description:
       'Selected participant for the national Digital Talent Scholarship, focusing on cloud computing and digital infrastructure skills.',
     accent: '#0891b2',
+    img: placeholder,
   },
   {
     id: 2,
@@ -55,18 +47,13 @@ const CERTS = [
     issuer: 'International Academic Committee',
     date: 'January 2026',
     status: 'TOP 15 FINALIST',
-    statusColor: '#dc2626',  // red — P5R accent
+    statusColor: '#dc2626',
     tag: 'ACHIEVEMENT',
     tagColor: '#dc2626',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
-        strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-      </svg>
-    ),
     description:
       'Ranked Top 15 Finalist globally in technical communication, recognized for clarity, research depth, and analytical writing.',
     accent: '#dc2626',
+    img: placeholder,
   },
 ]
 
@@ -115,93 +102,207 @@ function CertsBgOrnaments({ dark }) {
   )
 }
 
-/* ── Certificate Card ────────────────────────────────────────────── */
-function CertCard({ cert, dark }) {
+/* ── Lightbox Modal ──────────────────────────────────────────────── */
+function LightboxModal({ cert, onClose }) {
+  return createPortal(
+    <AnimatePresence>
+      {/* Backdrop — click to close */}
+      <motion.div
+        key="cert-backdrop"
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8"
+        style={{ background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(6px)' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.18 }}
+        onClick={onClose}
+      >
+        {/* Modal panel — stop propagation so clicking inside doesn't close */}
+        <motion.div
+          key="cert-modal"
+          className="relative w-full max-w-4xl overflow-hidden"
+          style={{
+            background: '#0f0f0f',
+            border: '2px solid #dc2626',
+            boxShadow: '10px 10px 0 #dc2626',
+          }}
+          initial={{ scale: 0.84, opacity: 0, y: 32 }}
+          animate={{ scale: 1,    opacity: 1, y: 0  }}
+          exit={{    scale: 0.84, opacity: 0, y: 32 }}
+          transition={SPRING}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Coloured top accent bar */}
+          <div className="h-1 w-full" style={{ background: cert.accent }} />
+
+          {/* Main certificate image — full-size, readable */}
+          <div className="relative w-full bg-zinc-950 flex items-center justify-center"
+            style={{ minHeight: '300px', maxHeight: '65vh' }}>
+            <img
+              src={cert.img}
+              alt={cert.title}
+              className="w-full h-full object-contain"
+              style={{ maxHeight: '65vh' }}
+              draggable={false}
+            />
+            {/* Tag badge overlay */}
+            <span
+              className="absolute bottom-3 left-3 text-white text-[10px] font-black
+                tracking-[0.22em] uppercase px-2 py-0.5"
+              style={{ background: cert.tagColor }}
+            >
+              {cert.tag}
+            </span>
+          </div>
+
+          {/* Info footer */}
+          <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="space-y-0.5">
+              <h3 className="text-white font-black uppercase tracking-tight text-base leading-tight
+                font-['Plus_Jakarta_Sans',sans-serif]">
+                {cert.title}
+              </h3>
+              <p className="text-xs font-semibold tracking-wider uppercase" style={{ color: cert.accent }}>
+                {cert.subtitle}
+              </p>
+              <p className="text-zinc-500 text-[11px]">{cert.issuer}</p>
+            </div>
+
+            <div className="flex items-center gap-3 flex-shrink-0">
+              {/* Date */}
+              <span className="text-zinc-500 text-[10px] font-semibold">{cert.date}</span>
+              {/* Status badge */}
+              <span
+                className="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5"
+                style={{
+                  background: cert.statusColor + '22',
+                  color: cert.statusColor,
+                  border: `1px solid ${cert.statusColor}55`,
+                }}
+              >
+                {cert.status}
+              </span>
+            </div>
+          </div>
+
+          {/* Description strip */}
+          <div className="px-6 pb-5">
+            <div className="h-px mb-3" style={{ background: cert.accent + '35' }} />
+            <p className="text-zinc-400 text-sm leading-relaxed">{cert.description}</p>
+          </div>
+
+          {/* Close button — P5R sharp style, top-right */}
+          <button
+            onClick={onClose}
+            aria-label="Close certificate lightbox"
+            className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center
+              bg-black/70 text-white font-black text-sm border border-zinc-700
+              hover:bg-red-600 hover:border-red-600 transition-colors duration-150
+              backdrop-blur-sm"
+            style={{ borderRadius: 0 }}
+          >
+            ✕
+          </button>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>,
+    document.body,
+  )
+}
+
+/* ── Certificate Thumbnail Card ──────────────────────────────────── */
+function CertCard({ cert, dark, onOpen }) {
   return (
     <motion.div
-      className="relative flex-shrink-0 flex flex-col overflow-hidden select-none"
+      className="relative flex-shrink-0 overflow-hidden select-none cursor-pointer"
       style={{
-        width: '300px',
-        background: dark ? '#18181b' : '#ffffff',
+        width: '280px',
         border: `2px solid ${dark ? '#27272a' : '#e4e4e7'}`,
         borderRadius: 0,
+        background: dark ? '#0f0f0f' : '#f4f4f5',
       }}
       whileHover={{
-        y: -6,
-        boxShadow: `6px 6px 0 ${cert.accent}`,
+        scale: 1.02,
+        x: -2,
+        y: -2,
+        boxShadow: `8px 8px 0 #dc2626`,
         borderColor: cert.accent,
       }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+      onClick={() => onOpen(cert)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && onOpen(cert)}
+      aria-label={`View certificate: ${cert.title}`}
     >
-      {/* Coloured top accent bar */}
+      {/* Accent top bar */}
       <div className="h-1 w-full" style={{ background: cert.accent }} />
 
-      {/* Header: icon + tag */}
-      <div className="flex items-start justify-between px-5 pt-5 pb-3">
+      {/* Thumbnail image */}
+      <div className="relative w-full overflow-hidden bg-zinc-900" style={{ height: '176px' }}>
+        <img
+          src={cert.img}
+          alt={cert.title}
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
+        {/* Gradient overlay */}
         <div
-          className="p-2.5 border"
-          style={{
-            color: cert.accent,
-            borderColor: cert.accent + '55',
-            background: cert.accent + '14',
-          }}
-        >
-          {cert.icon}
-        </div>
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.70) 0%, transparent 55%)' }}
+        />
+        {/* Tag badge */}
         <span
-          className="text-[9px] font-black tracking-[0.2em] uppercase px-2 py-0.5"
-          style={{ background: cert.tagColor, color: '#fff' }}
+          className="absolute bottom-2.5 left-2.5 text-white text-[9px] font-black
+            tracking-[0.22em] uppercase px-2 py-0.5"
+          style={{ background: cert.tagColor }}
         >
           {cert.tag}
         </span>
+        {/* Zoom / expand hint */}
+        <motion.div
+          className="absolute top-2.5 right-2.5 w-7 h-7 flex items-center justify-center
+            bg-black/60 border border-white/20 text-white backdrop-blur-sm"
+          style={{ borderRadius: 0 }}
+          whileHover={{ background: '#dc2626', borderColor: '#dc2626' }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            className="w-3.5 h-3.5">
+            <polyline points="15 3 21 3 21 9" />
+            <polyline points="9 21 3 21 3 15" />
+            <line x1="21" y1="3" x2="14" y2="10" />
+            <line x1="3"  y1="21" x2="10" y2="14" />
+          </svg>
+        </motion.div>
       </div>
 
-      {/* Title + issuer */}
-      <div className="px-5 pb-3">
+      {/* Card body */}
+      <div className="px-4 py-3.5">
         <h3
           className={`font-['Plus_Jakarta_Sans',sans-serif] font-black uppercase
-            tracking-tight leading-tight text-[1rem] mb-0.5
+            tracking-tight leading-tight text-[0.9rem] mb-0.5
             ${dark ? 'text-white' : 'text-black'}`}
         >
           {cert.title}
         </h3>
-        <p className="text-xs font-semibold tracking-wider uppercase mb-0.5"
+        <p className="text-[10px] font-semibold tracking-wider uppercase mb-0.5"
           style={{ color: cert.accent }}>
           {cert.subtitle}
         </p>
-        <p className={`text-[10px] ${dark ? 'text-zinc-500' : 'text-zinc-500'}`}>
-          {cert.issuer}
-        </p>
+        <p className="text-[10px] text-zinc-500">{cert.issuer}</p>
       </div>
 
-      {/* Red accent divider */}
-      <div className="mx-5 h-px mb-3" style={{ background: cert.accent + '40' }} />
-
-      {/* Description */}
-      <p className={`px-5 text-[11px] leading-relaxed flex-1
-        ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-        {cert.description}
-      </p>
-
-      {/* Footer: date + status badge */}
-      <div className="flex items-center justify-between px-5 py-4 mt-3">
-        <div className="flex items-center gap-1.5">
-          {/* Calendar icon */}
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-            strokeLinecap="round" strokeLinejoin="round"
-            className={`w-3.5 h-3.5 ${dark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-          <span className={`text-[10px] font-semibold ${dark ? 'text-zinc-500' : 'text-zinc-500'}`}>
-            {cert.date}
-          </span>
-        </div>
+      {/* Footer */}
+      <div className="flex items-center justify-between px-4 pb-3.5">
+        <span className="text-[10px] font-semibold text-zinc-500">{cert.date}</span>
         <span
           className="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5"
-          style={{ background: cert.statusColor + '22', color: cert.statusColor, border: `1px solid ${cert.statusColor}55` }}
+          style={{
+            background: cert.statusColor + '22',
+            color: cert.statusColor,
+            border: `1px solid ${cert.statusColor}55`,
+          }}
         >
           {cert.status}
         </span>
@@ -209,7 +310,7 @@ function CertCard({ cert, dark }) {
 
       {/* Halftone corner decoration */}
       <div
-        className="absolute bottom-0 right-0 w-20 h-20 pointer-events-none opacity-[0.12]"
+        className="absolute bottom-0 right-0 w-20 h-20 pointer-events-none opacity-[0.10]"
         style={{
           backgroundImage: `radial-gradient(circle, ${cert.accent} 1px, transparent 1px)`,
           backgroundSize: '8px 8px',
@@ -220,16 +321,15 @@ function CertCard({ cert, dark }) {
 }
 
 /* ── Draggable Horizontal Slider ─────────────────────────────────── */
-function CertSlider({ dark }) {
-  const trackRef   = useRef(null)
+function CertSlider({ dark, onOpenCert }) {
+  const trackRef = useRef(null)
 
-  /* Subtle parallax on the track itself when it scrolls into view */
   const { scrollYProgress } = useScroll({ target: trackRef, offset: ['start end', 'end start'] })
   const xParallax = useTransform(scrollYProgress, [0, 1], ['4%', '-4%'])
 
   return (
     <div className="w-full overflow-hidden">
-      {/* Drag hint label */}
+      {/* Drag hint */}
       <motion.div
         className={`flex items-center gap-2 mb-4 text-xs font-black tracking-[0.2em]
           uppercase ${dark ? 'text-zinc-500' : 'text-zinc-400'}`}
@@ -242,17 +342,14 @@ function CertSlider({ dark }) {
           strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
           <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" />
         </svg>
-        Drag to explore
+        Drag to explore · Click to expand
       </motion.div>
 
-      {/*
-        motion.div with drag="x" — framer-motion handles momentum + bounds automatically.
-        dragConstraints clamps the x travel so you can't pull past the first/last card.
-      */}
+      {/* Draggable track */}
       <motion.div
         ref={trackRef}
         drag="x"
-        dragConstraints={{ right: 0, left: -(CERTS.length - 1) * 320 }}
+        dragConstraints={{ right: 0, left: -(CERTS.length - 1) * 300 }}
         dragElastic={0.08}
         dragTransition={{ bounceStiffness: 280, bounceDamping: 32 }}
         className="flex gap-5 cursor-grab active:cursor-grabbing w-max pb-4"
@@ -260,16 +357,18 @@ function CertSlider({ dark }) {
         whileTap={{ cursor: 'grabbing' }}
       >
         {CERTS.map((cert) => (
-          <CertCard key={cert.id} cert={cert} dark={dark} />
+          <CertCard key={cert.id} cert={cert} dark={dark} onOpen={onOpenCert} />
         ))}
 
-        {/* "More coming" ghost card */}
+        {/* Ghost "More coming" card */}
         <motion.div
           className="relative flex-shrink-0 flex flex-col items-center justify-center gap-3"
           style={{
-            width: '200px',
+            width: '180px',
+            minHeight: '280px',
             border: `2px dashed ${dark ? '#3f3f46' : '#d4d4d8'}`,
             background: 'transparent',
+            borderRadius: 0,
           }}
           whileHover={{ borderColor: '#dc2626', scale: 1.02 }}
           transition={{ duration: 0.18 }}
@@ -297,6 +396,8 @@ function CertSlider({ dark }) {
    CERTIFICATES SECTION
 ═══════════════════════════════════════════════════════════════════ */
 export default function Certificates({ dark }) {
+  const [activeCert, setActiveCert] = useState(null)
+
   return (
     <section
       id="certificates"
@@ -311,7 +412,7 @@ export default function Certificates({ dark }) {
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={VP}
+          viewport={{ once: false, amount: 0.2 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
           <div className="flex items-center gap-3 mb-4">
@@ -330,7 +431,7 @@ export default function Certificates({ dark }) {
           <p className={`text-sm mb-10 max-w-xl leading-relaxed
             ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             Credentials that validate my skills across programming, AI, and
-            professional communication — drag to explore.
+            professional communication — drag to explore, click to expand.
           </p>
         </motion.div>
 
@@ -338,13 +439,18 @@ export default function Certificates({ dark }) {
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={VP}
+          viewport={{ once: false, amount: 0.2 }}
           transition={{ duration: 0.65, ease: 'easeOut', delay: 0.15 }}
         >
-          <CertSlider dark={dark} />
+          <CertSlider dark={dark} onOpenCert={setActiveCert} />
         </motion.div>
 
       </div>
+
+      {/* Lightbox */}
+      {activeCert && (
+        <LightboxModal cert={activeCert} onClose={() => setActiveCert(null)} />
+      )}
     </section>
   )
 }
