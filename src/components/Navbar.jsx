@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useLocation, useNavigate } from 'react-router-dom'
 import moonIcon from '../assets/moon.svg'
 import sunIcon from '../assets/sun.svg'
 
@@ -58,16 +59,45 @@ export default function Navbar({ dark, setDark }) {
   const sectionIds = NAV_LINKS.map(l => l.id)
   const active = useActiveSection(['home', ...sectionIds])
 
+  const location = useLocation()
+  const navigate = useNavigate()
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', fn)
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
+  /**
+   * Cross-page navigation:
+   * - On '/'  → just smooth-scroll to the section ID.
+   * - On any other page → navigate to '/#<id>' and let the
+   *   HashScrollHandler (or a useEffect) pick up the hash on arrival.
+   */
   const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
     setOpen(false)
+    if (location.pathname === '/') {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      // Navigate home with a hash so we know where to scroll after load
+      navigate(`/#${id}`)
+    }
   }
+
+  /**
+   * After navigating to '/', pick up any pending hash and scroll to it.
+   * This handles the case where we arrived via navigate('/#<id>').
+   */
+  useEffect(() => {
+    if (location.pathname === '/' && location.hash) {
+      const id = location.hash.replace('#', '')
+      // Small timeout to let the page render its sections first
+      const timer = setTimeout(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
+      }, 80)
+      return () => clearTimeout(timer)
+    }
+  }, [location])
 
   const navBg = scrolled
     ? dark
@@ -82,9 +112,15 @@ export default function Navbar({ dark, setDark }) {
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="flex items-center justify-between h-16">
 
-          {/* Logo */}
+          {/* Logo — always goes home and scrolls to top */}
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            onClick={() => {
+              if (location.pathname === '/') {
+                window.scrollTo({ top: 0, behavior: 'smooth' })
+              } else {
+                navigate('/')
+              }
+            }}
             className="font-['Bebas_Neue',sans-serif] text-2xl tracking-widest select-none flex items-center gap-0.5"
           >
             <span className="text-red-600">{'<'}</span>
