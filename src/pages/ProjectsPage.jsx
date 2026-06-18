@@ -2,83 +2,94 @@ import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import Navbar from '../components/Navbar'
-import projectImg from '../assets/project_placeholder.png'
+import supervised from '../assets/supervised.png'
+import unsupervised from '../assets/unsupervised.png'
+import thisimg from '../assets/this.png'
+import wazuh from '../assets/wazuh.png'
+import pentest from '../assets/pentest.png'
+import Keylog from '../assets/Keylogger.png'
+import autopsy from '../assets/Autopsy.png'
+import IDSml from '../assets/Dashboard.png'
+
 import { useState, useEffect } from 'react'
 
 const VP = { once: false, amount: 0.12 }
 
 const ALL_PROJECTS = [
   {
-    id: 0, img: projectImg,
-    title: 'Multimodal AI Smart Glasses',
-    subtitle: 'Real-Time Translation Framework',
+    id: 0, img: supervised,
+    title: 'Supervised Machine Learning - Classification',
+    subtitle: 'K-Nearest Neighbor Algorithm',
     tag: 'AI / ML',
-    description: 'A framework developed for real-time translation and communication using multimodal AI. Integrates computer vision, NLP, and edge inference for seamless human-computer interaction via wearable hardware.',
-    stack: ['Python', 'PyTorch', 'OpenCV', 'Raspberry Pi', 'Whisper AI'],
-    github: 'https://github.com/Alfdzrii', live: null, year: '2024',
+    description: 'Supervised machine learning classification using K-Nearest Neighbor (KNN) algorithm to classify data points based on similarity to training data.',
+    stack: ['Python', 'Scikit-learn', 'Pandas', 'Matplotlib', 'Jupyter Notebook'],
+    github: 'https://github.com/Alfdzrii/Machine-learning',
+    live: null,
+    year: '2025',
   },
   {
-    id: 1, img: projectImg,
-    title: 'AI-Driven Agriculture Monitoring',
-    subtitle: 'Smart Farm Operations Website',
-    tag: 'WEB / AI',
-    description: 'Final project website integrating AI to monitor agriculture machine operations in real time. Provides dashboards, anomaly alerts, and predictive maintenance insights for modern smart farming.',
-    stack: ['Laravel', 'Python', 'TensorFlow', 'MySQL', 'Chart.js'],
-    github: 'https://github.com/Alfdzrii', live: 'https://example.com', year: '2024',
+    id: 1, img: thisimg,
+    title: 'Portofolio Website',
+    subtitle: 'Personal Portfolio Website',
+    tag: 'WEB',
+    description: 'Portofolio website for showcasing projects, activities, and certificates.',
+    stack: ['React', 'Tailwind CSS', 'Framer Motion'],
+    github: 'https://github.com/Alfdzrii/web-portofolio', live: 'https://alfadzri-abhipraya.vercel.app/', year: '2026',
   },
   {
-    id: 2, img: projectImg,
-    title: 'Secure File Encryption Tool',
-    subtitle: 'C++ Cybersecurity Academic Project',
-    tag: 'CYBERSECURITY',
-    description: 'Academic cybersecurity tool developed purely in C++ under strict constraints. Implements AES-256 encryption, RSA key exchange, and SHA-3 hashing for secure file transmission and storage.',
-    stack: ['C++', 'OpenSSL', 'AES-256', 'RSA', 'SHA-3'],
-    github: 'https://github.com/Alfdzrii', live: null, year: '2023',
+    id: 2, img: autopsy,
+    title: 'Digital Forensics Real Case Study using Autopsy',
+    subtitle: 'Crimes Involving Computers and Digital Evidence',
+    tag: 'CYBERSECURITY / DIGITAL FORENSICS',
+    description: 'Analyzing crimes involving computers and digital evidence and using digital forensic tools to collect and analyze digital evidence to solve crimes.',
+    stack: ['Autopsy', 'FTK Imager'],
+    github: null, live: null, year: '2026',
   },
   {
-    id: 3, img: projectImg,
-    title: 'Network Intrusion Detection System',
-    subtitle: 'ML-Powered Packet Analyzer',
-    tag: 'CYBERSECURITY',
-    description: 'A machine-learning based NIDS that classifies network traffic in real time to identify potential threats. Trained on the NSL-KDD dataset with 98.4% accuracy on binary classification.',
-    stack: ['Python', 'Scikit-learn', 'Wireshark', 'Pandas', 'FastAPI'],
-    github: 'https://github.com/Alfdzrii', live: null, year: '2024',
+    id: 3, img: Keylog,
+    title: 'Simple Keylogger',
+    subtitle: 'Simple Keylogger',
+    tag: 'PYTHON',
+    description: 'Simple keylogger that can capture keystrokes and save them to a file.',
+    stack: ['Python'],
+    github: 'https://github.com/Alfdzrii/Keylogger', live: null, year: '2024',
   },
   {
-    id: 4, img: projectImg,
-    title: 'Smart Campus IoT Dashboard',
-    subtitle: 'Real-Time Sensor Monitoring',
-    tag: 'IOT / WEB',
-    description: 'Full-stack IoT dashboard for monitoring campus environmental sensors (temperature, humidity, CO₂ levels). Features live WebSocket updates, historical chart analysis, and alert notifications.',
-    stack: ['React', 'Node.js', 'MQTT', 'InfluxDB', 'Grafana'],
-    github: 'https://github.com/Alfdzrii', live: null, year: '2023',
+    id: 4, img: wazuh,
+    title: 'Wazuh SIEM Setup in Virtual Machines',
+    subtitle: 'Wazuh SIEM Setup',
+    tag: 'CYBERSECURITY / SIEM TOOLS',
+    description: 'Wazuh is a SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) platform for unified threat detection, security monitoring, and incident response for cloud, container, and hybrid environments.',
+    stack: ['Ubuntu', 'Virtual Machines', 'Wazuh', 'Kibana', 'Docker'],
+    github: null,
+    live: null,
+    year: '2026',
   },
   {
-    id: 5, img: projectImg,
-    title: 'Automated Code Review Bot',
-    subtitle: 'GitHub Actions + LLM Integration',
-    tag: 'DEV TOOLS',
-    description: 'A GitHub Actions bot that automatically reviews pull requests using a locally hosted LLM. Identifies code smells, potential bugs, and style violations with PR comments and summary reports.',
-    stack: ['Python', 'LangChain', 'Ollama', 'GitHub API', 'Docker'],
-    github: 'https://github.com/Alfdzrii', live: null, year: '2024',
-  },
-  {
-    id: 6, img: projectImg,
-    title: 'Sign Language Recognition App',
-    subtitle: 'Real-Time Hand Gesture Classifier',
+    id: 5, img: unsupervised,
+    title: 'Unsupervised Machine Learning - Clustering',
+    subtitle: 'K-Means Clustering Algorithms and Analysis',
     tag: 'AI / ML',
-    description: 'Mobile-friendly web app that uses MediaPipe and a custom CNN to classify Indonesian sign language gestures from webcam feed in real time. Supports 26 alphabet signs with >95% accuracy.',
-    stack: ['Python', 'MediaPipe', 'TensorFlow.js', 'React', 'FastAPI'],
-    github: 'https://github.com/Alfdzrii', live: 'https://example.com', year: '2023',
+    description: 'Unsupervised machine learning clustering with K-Means algorithm applied to a dataset to identify patterns and group data points based on similarity.',
+    stack: ['Python', 'Scikit-learn', 'Pandas', 'Matplotlib', 'Jupyter Notebook'],
+    github: 'https://github.com/Alfdzrii/Machine-learning', live: null, year: '2025',
   },
   {
-    id: 7, img: projectImg,
-    title: 'Distributed Task Queue System',
-    subtitle: 'Scalable Background Job Processor',
-    tag: 'BACKEND',
-    description: 'A distributed task queue built from scratch to handle high-throughput background jobs. Supports priority queues, retry logic with exponential backoff, and real-time job status tracking via SSE.',
-    stack: ['Go', 'Redis', 'PostgreSQL', 'Docker', 'Kubernetes'],
-    github: 'https://github.com/Alfdzrii', live: null, year: '2024',
+    id: 6, img: pentest,
+    title: 'Penetration Testing Tools',
+    subtitle: 'Penetration Testing Tools',
+    tag: 'CYBERSECURITY / PENETRATION TOOLS',
+    description: 'Penetration testing tools to identify vulnerabilities in systems and applications.',
+    stack: ['Python'],
+    github: 'https://github.com/Alfdzrii/Pentest-Tools', live: null, year: '2025',
+  }, {
+    id: 7, img: IDSml,
+    title: 'Intrusion Detection System with Machine Learning',
+    subtitle: 'Intrusion Detection System',
+    tag: 'CYBERSECURITY',
+    description: 'Intrusion detection system that uses machine learning to detect intrusions in computer networks. can read wireshark file and detect intrusions.',
+    stack: ['Python'],
+    github: null, live: null, year: '2026',
   },
 ]
 

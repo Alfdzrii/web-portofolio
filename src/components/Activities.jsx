@@ -7,6 +7,8 @@ import compstud   from '../assets/Compstud.jpg'
 import eo         from '../assets/EO.jpeg'
 import logist     from '../assets/LOGIST.jpeg'
 import pufa       from '../assets/PUFA.jpeg'
+import CTF1       from '../assets/CTF1.jpeg'
+import CTF2       from '../assets/CTF2.png'
 
 /* ── Viewport config ────────────────────────────────────────────── */
 const VP = { once: false, amount: 0.15 }
@@ -40,6 +42,16 @@ const SLIDES = [
     id: 8, img: pufa,
     title: 'PUFA 2025', subtitle: 'Member of External Division', tag: 'ORGANIZATION',
     description: 'Active member of the President University faculty Association 2025, contributing to Faculty through programs and Events.',
+  },
+   {
+    id: 9, img: CTF1,
+    title: 'RANK 6 IN PU CTF BATCH 2024 - ETHICAL HACKING', subtitle: 'Ethical Hacking', tag: 'COMPETITION',
+    description: 'Ranked 6th in the President University CTF Batch 2024 - Ethical Hacking competition, demonstrating strong skills in cybersecurity and ethical hacking.',
+  },
+  {
+    id: 10, img: CTF2,
+    title: 'RANK 4 IN PU CTF BATCH 2024 - DIGITAL FORENSIC', subtitle: 'Digital Forensic', tag: 'COMPETITION',
+    description: 'Ranked 4th in the President University CTF Batch 2024 - Digital Forensic competition, demonstrating strong skills in digital forensics and cybersecurity.',
   },
 ]
 

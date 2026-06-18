@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import projectImg from '../assets/project_placeholder.png'
+import unsupervised from '../assets/supervised.png'
+import thisimg from '../assets/this.png'
+import wazuh from '../assets/wazuh.png'
 
 /* ── Viewport config ────────────────────────────────────────────── */
 const VP = { once: false, amount: 0.15 }
@@ -9,42 +11,42 @@ const VP = { once: false, amount: 0.15 }
 const PROJECTS = [
   {
     id: 0,
-    img: projectImg,
-    title: 'Multimodal AI Smart Glasses',
-    subtitle: 'Real-Time Translation Framework',
+    img: unsupervised,
+    title: 'Unsupervised Machine Learning - Clustering',
+    subtitle: 'K-Means Clustering Algorithms and Analysis',
     tag: 'AI / ML',
     description:
-      'A framework developed for real-time translation and communication using multimodal AI. Integrates computer vision, NLP, and edge inference for seamless human-computer interaction via wearable hardware.',
-    stack: ['Python', 'PyTorch', 'OpenCV', 'Raspberry Pi', 'Whisper AI'],
-    github: 'https://github.com',
+      'Unsupervised machine learning clustering with K-Means algorithm applied to a dataset to identify patterns and group data points based on similarity.',
+    stack: ['Python', 'Scikit-learn', 'Pandas', 'Matplotlib', 'Jupyter Notebook'],
+    github: 'https://github.com/Alfdzrii/Machine-learning',
     live: null,
-    year: '2024',
+    year: '2025',
   },
   {
     id: 1,
-    img: projectImg,
-    title: 'AI-Driven Agriculture Monitoring',
-    subtitle: 'Smart Farm Operations Website',
-    tag: 'WEB / AI',
+    img: wazuh,
+    title: 'Wazuh Setup in Virtual Machines',
+    subtitle: 'Wazuh SIEM Setup',
+    tag: 'CYBERSECURITY / SIEM TOOLS',
     description:
-      'Final project website integrating AI to monitor agriculture machine operations in real time. Provides dashboards, anomaly alerts, and predictive maintenance insights for modern smart farming.',
-    stack: ['Laravel', 'Python', 'TensorFlow', 'MySQL', 'Chart.js'],
-    github: 'https://github.com',
-    live: 'https://example.com',
-    year: '2024',
+      'Wazuh is a SIEM (Security Information and Event Management) and XDR (Extended Detection and Response) platform for unified threat detection, security monitoring, and incident response for cloud, container, and hybrid environments.',
+    stack: ['Ubuntu', 'Virtual Machines', 'Wazuh', 'Kibana', 'Docker'],
+    github: null,
+    live: null,
+    year: '2026',
   },
   {
     id: 2,
-    img: projectImg,
-    title: 'Secure File Encryption Tool',
-    subtitle: 'C++ Cybersecurity Academic Project',
-    tag: 'CYBERSECURITY',
+    img: thisimg,
+    title: 'Portofolio Website',
+    subtitle: 'Portofolio Website',
+    tag: 'Web',
     description:
-      'Academic cybersecurity tool developed purely in C++ under strict constraints. Implements AES-256 encryption, RSA key exchange, and SHA-3 hashing for secure file transmission and storage.',
-    stack: ['C++', 'OpenSSL', 'AES-256', 'RSA', 'SHA-3'],
-    github: 'https://github.com',
+      'This website displays my projects and my information.',
+    stack: ['React', 'Framer Motion', 'Tailwind CSS'],
+    github: 'https://github.com/Alfdzrii/web-portofolio',
     live: null,
-    year: '2023',
+    year: '2026',
   },
 ]
 
