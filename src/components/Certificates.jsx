@@ -2,7 +2,9 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { createPortal } from 'react-dom'
 
-import placeholder from '../assets/project_placeholder.png'
+import CCSC from '../assets/Certificate/certificate-CCSC.jpg'
+import Samsung from '../assets/Certificate/Samsung.jpg'
+import Freecodecamp from '../assets/Certificate/Freecodecamp.png'
 
 /* ── Viewport config ────────────────────────────────────────────── */
 const VP     = { once: false, amount: 0.15 }
@@ -23,37 +25,37 @@ const CERTS = [
     description:
       'Completed intensive Python programming curriculum covering data structures, algorithms, and applied machine learning fundamentals.',
     accent: '#7c3aed',
-    img: placeholder,
+    img: Samsung,
   },
   {
     id: 1,
-    title: 'Digital Talent Scholarship',
-    subtitle: 'Kominfo Scholarship Program',
-    issuer: 'Ministry of Communication · Indonesia',
-    date: 'August 2025',
-    status: 'REGISTERED',
+    title: 'Cybersecurity Career Starter Certification',
+    subtitle: 'Cybersecurity',
+    issuer: 'Hack & Fix Academy',
+    date: 'may 2026',
+    status: 'COMPLETED',
     statusColor: '#0891b2',
-    tag: 'SCHOLARSHIP',
+    tag: 'CYBERSECURITY',
     tagColor: '#0891b2',
     description:
-      'Selected participant for the national Digital Talent Scholarship, focusing on cloud computing and digital infrastructure skills.',
+      'The Cybersecurity Career Starter program provides a comprehensive foundation in cybersecurity fundamentals, equipping participants with essential knowledge and practical skills in network security, ethical hacking, and digital forensics.',
     accent: '#0891b2',
-    img: placeholder,
+    img: CCSC,
   },
   {
     id: 2,
-    title: 'International Essay Competition',
-    subtitle: 'Technical Communication',
-    issuer: 'International Academic Committee',
-    date: 'January 2026',
-    status: 'TOP 15 FINALIST',
-    statusColor: '#dc2626',
-    tag: 'ACHIEVEMENT',
+    title: 'Legacy Responsive Web Design V8',
+    subtitle: 'Web Development',
+    issuer: 'Freecodecamp',
+    date: 'june 2024',
+    status: 'COMPLETED',
+    statusColor: '#0891b2',
+    tag: 'WEB DEVELOPMENT',
     tagColor: '#dc2626',
     description:
-      'Ranked Top 15 Finalist globally in technical communication, recognized for clarity, research depth, and analytical writing.',
+      'Mastered responsive web design fundamentals, building accessible and adaptive interfaces using modern HTML5 and CSS3 practices.',
     accent: '#dc2626',
-    img: placeholder,
+    img: Freecodecamp,
   },
 ]
 
