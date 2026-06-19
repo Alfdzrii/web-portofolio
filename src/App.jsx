@@ -20,7 +20,7 @@ document.head.appendChild(fl)
 function HomePage({ dark, setDark }) {
   const bg = dark ? 'bg-zinc-950 text-white' : 'bg-white text-black'
   return (
-    <div className={`min-h-screen font-[Inter,system-ui,sans-serif] transition-colors duration-300 ${bg}`}>
+    <div className={`w-full min-h-screen overflow-x-hidden font-[Inter,system-ui,sans-serif] transition-colors duration-300 ${bg}`}>
       <Navbar dark={dark} setDark={setDark} />
       <Hero  dark={dark} />
       <About dark={dark} />

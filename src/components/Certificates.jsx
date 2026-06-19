@@ -403,7 +403,7 @@ export default function Certificates({ dark }) {
   return (
     <section
       id="certificates"
-      className={`relative py-20 px-6 lg:px-10 overflow-hidden
+      className={`relative w-full py-20 px-6 lg:px-10 overflow-hidden
         ${dark ? 'bg-black' : 'bg-white'}`}
     >
       <CertsBgOrnaments dark={dark} />

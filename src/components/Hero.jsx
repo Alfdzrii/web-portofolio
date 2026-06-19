@@ -151,7 +151,7 @@ export default function Hero({ dark }) {
   return (
     <section
       id="home"
-      className={`relative min-h-screen flex items-center pt-20 pb-16 px-6 lg:px-10
+      className={`relative w-full min-h-screen flex items-center pt-20 pb-16 px-6 lg:px-10
         ${dark ? 'bg-zinc-950' : 'bg-white'}`}
     >
       {/* P5R background ornaments — behind content */}
@@ -181,7 +181,7 @@ export default function Hero({ dark }) {
                 className="relative overflow-hidden p5-scanlines"
                 style={{
                   borderRadius: 0,
-                  width: 'clamp(270px, 36vw, 400px)',
+                  width: 'clamp(min(270px, 82vw), 36vw, 400px)',
                   aspectRatio: '4/5',
                   boxShadow: photoShadow,
                 }}

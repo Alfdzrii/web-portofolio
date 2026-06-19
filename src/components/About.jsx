@@ -112,7 +112,7 @@ export default function About({ dark }) {
   return (
     <section
       id="about"
-      className={`relative py-24 px-6 lg:px-10
+      className={`relative w-full py-24 px-6 lg:px-10
         ${dark ? 'bg-zinc-900' : 'bg-zinc-100'}`}
     >
       {/* P5R background ornaments — behind content */}

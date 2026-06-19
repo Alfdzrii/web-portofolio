@@ -95,7 +95,7 @@ export default function Contact({ dark }) {
 
   return (
     // Background matches Projects section: bg-zinc-900 (dark) / bg-zinc-100 (light)
-    <section id="contact" className={`relative py-24 px-6 lg:px-10 ${dark ? 'bg-zinc-900' : 'bg-zinc-100'}`}>
+    <section id="contact" className={`relative w-full py-24 px-6 lg:px-10 ${dark ? 'bg-zinc-900' : 'bg-zinc-100'}`}>
       <ContactBgOrnaments dark={dark} />
       <div className="relative z-10 max-w-5xl mx-auto">
         <motion.div {...fadeUp(0)}>

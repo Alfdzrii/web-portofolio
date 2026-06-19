@@ -271,7 +271,7 @@ export default function Projects({ dark }) {
   return (
     <section
       id="projects"
-      className={`relative py-20 px-6 lg:px-10 ${dark ? 'bg-zinc-900' : 'bg-zinc-100'}`}
+      className={`relative w-full py-20 px-6 lg:px-10 ${dark ? 'bg-zinc-900' : 'bg-zinc-100'}`}
     >
       <ProjectsBgOrnaments dark={dark} />
 

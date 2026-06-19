@@ -397,7 +397,7 @@ export default function Activities({ dark }) {
   return (
     <section
       id="activities"
-      className={`relative py-24 px-6 lg:px-10 ${dark ? 'bg-black' : 'bg-white'}`}
+      className={`relative w-full py-24 px-6 lg:px-10 ${dark ? 'bg-black' : 'bg-white'}`}
     >
       <ActivitiesBgOrnaments dark={dark} />
 
