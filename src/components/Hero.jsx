@@ -247,7 +247,7 @@ export default function Hero({ dark }) {
             >
               I create{' '}
               <span className={`font-semibold ${dark ? 'text-zinc-100' : 'text-black'}`}>Digital Experiences</span>
-              {' '}that minimalist, robust and secure. Focusing on building{' '}
+              {' '}that minimalist, robust and secure. Focusing on {' '}
               <span className={`font-semibold ${dark ? 'text-zinc-100' : 'text-black'}`}>Cyber Security and Digital Forensic</span>.
             </p>
             {/* CTAs */}
