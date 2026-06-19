@@ -204,6 +204,9 @@ function PagesBgOrnaments({ dark }) {
 
 export default function ProjectsPage() {
   const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }) }, [])
+
   useEffect(() => { document.documentElement.classList.toggle('dark', dark) }, [dark])
   const bg = dark ? 'bg-zinc-950 text-white' : 'bg-white text-black'
 
