@@ -8,8 +8,17 @@
 .animate-blink { animation: blink 0.75s step-end infinite; }
 
 /* ── Base ─────────────────────────────────────────────────────── */
-html { scroll-behavior: smooth; }
-body { margin: 0; }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  width: 100%;
+}
+body {
+  margin: 0;
+  overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+}
 
 /* ── Persona 5: diagonal stripe accent ───────────────────────── */
 .p5-stripe {
