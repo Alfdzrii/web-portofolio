@@ -5,7 +5,7 @@ import {
 import { FaJava, FaNetworkWired, FaSearch } from 'react-icons/fa'
 import { GiMagnifyingGlass } from 'react-icons/gi'
 import { MdSecurity } from 'react-icons/md'
-import underwaterImg from '../assets/Underwater.jpeg'
+import pm from '../assets/PM.jpeg'
 
 /* ── Viewport config: repeatable on every scroll pass ─────────── */
 const VP = { once: false, amount: 0.2 }
@@ -203,7 +203,7 @@ export default function About({ dark }) {
               transition={{ duration: 0.15, ease: 'easeOut' }}
             >
               <img
-                src={underwaterImg}
+                src={pm}
                 alt="Underwater scenery"
                 className="block w-full max-w-sm object-cover"
                 style={{ aspectRatio: '4/3', display: 'block' }}
