@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import heroImage from '../assets/Alfadzri.jpeg'
+import cvFile from '../assets/cv/Alfadzri-Abhipraya_CV.pdf'
 
 const PHRASES = [
   'Cyber Security Enthusiast',
@@ -277,6 +278,30 @@ export default function Hero({ dark }) {
               >
                 Let's Talk
               </button>
+
+              {/* ── View My CV ── download anchor */}
+              <motion.a
+                href={cvFile}
+                download="Alfadzri-Abhipraya_CV.pdf"
+                id="cta-view-cv"
+                className={`group flex items-center gap-2.5 px-7 py-3 font-black text-sm
+                  uppercase tracking-widest border-2 transition-colors duration-200
+                  ${dark
+                    ? 'border-zinc-600 text-zinc-300 hover:border-red-600 hover:text-white hover:bg-red-600'
+                    : 'border-zinc-400 text-zinc-700 hover:border-red-600 hover:text-white hover:bg-red-600'}`}
+                whileHover={{ boxShadow: '4px 4px 0px 0px #991b1b', x: -2, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{ duration: 0.14, ease: 'easeOut' }}
+              >
+                {/* Download arrow icon */}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round"
+                  className="w-4 h-4 transition-transform duration-200 group-hover:translate-y-0.5">
+                  <path d="M12 5v10M7 14l5 5 5-5" />
+                  <line x1="4" y1="21" x2="20" y2="21" />
+                </svg>
+                View My CV
+              </motion.a>
             </div>
           </motion.div>
 
