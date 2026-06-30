@@ -8,6 +8,7 @@ import Projects from './components/Projects'
 import Certificates from './components/Certificates'
 import Contact from './components/Contact'
 import ProjectsPage from './pages/ProjectsPage'
+import SkillsPage from './pages/SkillsPage'
 import './index.css'
 
 /* ── Google Fonts ────────────────────────────────────────────── */
@@ -47,6 +48,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage dark={dark} setDark={setDark} />} />
         <Route path="/projects" element={<ProjectsPage />} />
+        <Route path="/skills"   element={<SkillsPage />} />
       </Routes>
     </BrowserRouter>
   )
