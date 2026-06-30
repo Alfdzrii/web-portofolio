@@ -1,5 +1,6 @@
-import { useRef } from 'react'
-import { motion } from 'framer-motion'
+import { useRef, useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import emailjs from '@emailjs/browser'
 
 const VP = { once: false, amount: 0.15 }
 const fadeUp = (delay = 0) => ({
@@ -8,6 +9,15 @@ const fadeUp = (delay = 0) => ({
   viewport: VP,
   transition: { duration: 0.55, ease: 'easeOut', delay },
 })
+
+/* ── Anti-XSS: strip any HTML/script tags from a string ──────────── */
+function sanitize(str) {
+  return str
+    .replace(/<[^>]*>/g, '')          // strip tags
+    .replace(/javascript:/gi, '')     // kill js: protocols
+    .replace(/on\w+\s*=/gi, '')       // kill inline event handlers
+    .trim()
+}
 
 function ContactBgOrnaments({ dark }) {
   const col = dark ? 'rgba(220,38,38,0.18)' : 'rgba(220,38,38,0.13)'
@@ -75,26 +85,75 @@ const INFO = [
   },
 ]
 
+/* ── Cooldown duration in seconds ────────────────────────────────── */
+const COOLDOWN_SECS = 60
+
 export default function Contact({ dark }) {
   const formRef = useRef(null)
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const fd = new FormData(formRef.current)
-    const name    = fd.get('name')    || ''
-    const email   = fd.get('email')   || ''
-    const subject = fd.get('subject') || 'Portfolio Contact'
-    const message = fd.get('message') || ''
+  // 'idle' | 'sending' | 'success' | 'error'
+  const [status, setStatus]       = useState('idle')
+  const [errorMsg, setErrorMsg]   = useState('')
+  // cooldown countdown (seconds remaining; 0 = no cooldown)
+  const [cooldown, setCooldown]   = useState(0)
 
-    const body = encodeURIComponent(
-      `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
-    )
-    // ── Replace YOUR_EMAIL_HERE@gmail.com with your actual email ──
-    window.location.href = `mailto:Alfadzri.Abhipraya@gmail.com?subject=${encodeURIComponent(subject)}&body=${body}`
+  /* ── Countdown ticker ───────────────────────────────────────────── */
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const id = setInterval(() => {
+      setCooldown(prev => {
+        if (prev <= 1) { clearInterval(id); return 0 }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(id)
+  }, [cooldown])
+
+  /* ── Submit handler ─────────────────────────────────────────────── */
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (cooldown > 0 || status === 'sending') return
+
+    const fd      = new FormData(formRef.current)
+    const name    = sanitize(fd.get('name')    || '')
+    const email   = sanitize(fd.get('email')   || '')
+    const subject = sanitize(fd.get('subject') || 'Portfolio Contact')
+    const message = sanitize(fd.get('message') || '')
+
+    // Inject sanitized values back for emailjs (it reads the real form fields)
+    // We pass the template params object directly instead of the form ref
+    setStatus('sending')
+    setErrorMsg('')
+
+    try {
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        { from_name: name, from_email: email, subject, message },
+        { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY },
+      )
+      setStatus('success')
+      formRef.current?.reset()
+      setCooldown(COOLDOWN_SECS)   // start the 60 s cooldown
+    } catch (err) {
+      console.error('EmailJS error:', err)
+      setErrorMsg(err?.text || 'Something went wrong. Please try again.')
+      setStatus('error')
+    }
   }
 
+  /* ── Derived button state ───────────────────────────────────────── */
+  const isBusy     = status === 'sending'
+  const isCooling  = cooldown > 0
+  const btnDisabled = isBusy || isCooling
+
+  const btnLabel = isBusy
+    ? 'Sending…'
+    : isCooling
+    ? `Wait ${cooldown}s…`
+    : 'Send Message'
+
   return (
-    // Background matches Projects section: bg-zinc-900 (dark) / bg-zinc-100 (light)
     <section id="contact" className={`relative w-full py-24 px-6 lg:px-10 ${dark ? 'bg-zinc-900' : 'bg-zinc-100'}`}>
       <ContactBgOrnaments dark={dark} />
       <div className="relative z-10 max-w-5xl mx-auto">
@@ -118,31 +177,20 @@ export default function Contact({ dark }) {
             <div className="h-0.5 w-12 bg-red-600" />
             {INFO.map(({ icon, label, value, href }) => (
               <div key={label} className="flex items-start gap-4">
-                {/* Icon box — also wrapped in the link */}
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${label} profile`}
+                <a href={href} target="_blank" rel="noopener noreferrer" aria-label={`${label} profile`}
                   className={`group flex-shrink-0 w-10 h-10 flex items-center justify-center border-2 transition-colors duration-200
                     ${dark
                       ? 'border-zinc-700 bg-zinc-800 hover:border-red-600 hover:bg-red-600/10'
-                      : 'border-zinc-200 bg-zinc-50 hover:border-red-600 hover:bg-red-50'}`}
-                >
+                      : 'border-zinc-200 bg-zinc-50 hover:border-red-600 hover:bg-red-50'}`}>
                   {icon}
                 </a>
                 <div>
                   <p className={`text-[10px] font-black tracking-[0.2em] uppercase mb-0.5 ${dark ? 'text-zinc-500' : 'text-zinc-400'}`}>
                     {label}
                   </p>
-                  {/* Clickable URL text */}
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <a href={href} target="_blank" rel="noopener noreferrer"
                     className={`text-sm font-medium transition-colors duration-150 hover:text-red-600
-                      ${dark ? 'text-zinc-300' : 'text-zinc-700'}`}
-                  >
+                      ${dark ? 'text-zinc-300' : 'text-zinc-700'}`}>
                     {value}
                   </a>
                 </div>
@@ -162,35 +210,124 @@ export default function Contact({ dark }) {
           {/* Form */}
           <motion.form ref={formRef} onSubmit={handleSubmit}
             className="lg:col-span-3 flex flex-col gap-5" {...fadeUp(0.2)}>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field label="Name" id="contact-name" dark={dark}>
-                <input id="contact-name" name="name" type="text" required placeholder="Your full name" className={inputCls(dark)} />
+                <input
+                  id="contact-name" name="name" type="text" required
+                  placeholder="Your full name"
+                  maxLength={80}
+                  className={inputCls(dark)}
+                />
               </Field>
               <Field label="Email" id="contact-email" dark={dark}>
-                <input id="contact-email" name="email" type="email" required placeholder="your@email.com" className={inputCls(dark)} />
+                <input
+                  id="contact-email" name="email" type="email" required
+                  placeholder="your@email.com"
+                  maxLength={120}
+                  className={inputCls(dark)}
+                />
               </Field>
             </div>
+
             <Field label="Subject" id="contact-subject" dark={dark}>
-              <input id="contact-subject" name="subject" type="text" required placeholder="What's this about?" className={inputCls(dark)} />
+              <input
+                id="contact-subject" name="subject" type="text" required
+                placeholder="What's this about?"
+                maxLength={120}
+                className={inputCls(dark)}
+              />
             </Field>
+
             <Field label="Message" id="contact-message" dark={dark}>
-              <textarea id="contact-message" name="message" required rows={6}
+              <textarea
+                id="contact-message" name="message" required rows={6}
                 placeholder="Tell me about your project, idea, or just say hello..."
-                className={`${inputCls(dark)} resize-none`} />
+                maxLength={2000}
+                className={`${inputCls(dark)} resize-none`}
+              />
             </Field>
-            <motion.button type="submit" id="contact-submit"
-              className="group self-start flex items-center gap-3 px-8 py-3.5 border-2 font-black text-sm tracking-[0.18em] uppercase transition-all duration-200 bg-black border-black text-white"
-              whileHover={{ boxShadow: '4px 4px 0px 0px #dc2626', x: -2, y: -2 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ duration: 0.14, ease: 'easeOut' }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
-                strokeLinecap="round" strokeLinejoin="round"
-                className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1">
-                <line x1="22" y1="2" x2="11" y2="13"/>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-              </svg>
-              Send via Email
+
+            {/* Submit button */}
+            <motion.button
+              type="submit"
+              id="contact-submit"
+              disabled={btnDisabled}
+              className={`group self-start flex items-center gap-3 px-8 py-3.5 border-2 font-black text-sm tracking-[0.18em] uppercase transition-all duration-200
+                ${btnDisabled
+                  ? 'bg-zinc-700 border-zinc-600 text-zinc-400 cursor-not-allowed'
+                  : 'bg-black border-black text-white cursor-pointer'}`}
+              whileHover={btnDisabled ? {} : { boxShadow: '4px 4px 0px 0px #dc2626', x: -2, y: -2 }}
+              whileTap={btnDisabled ? {} : { scale: 0.97 }}
+              transition={{ duration: 0.14, ease: 'easeOut' }}
+            >
+              {!isBusy && !isCooling && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+                  strokeLinecap="round" strokeLinejoin="round"
+                  className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1">
+                  <line x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+              )}
+              {isBusy && (
+                /* Spinner */
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+              )}
+              {btnLabel}
             </motion.button>
+
+            {/* ── Feedback banners ─────────────────────────────────── */}
+            <AnimatePresence mode="wait">
+              {status === 'success' && (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-start gap-3 border-l-4 border-green-500 pl-4 py-3 bg-green-500/10"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"
+                    strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 flex-shrink-0 mt-0.5">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <div>
+                    <p className="text-green-400 font-black text-xs tracking-[0.18em] uppercase">Message Sent!</p>
+                    <p className={`text-xs mt-0.5 ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                      Thanks for reaching out — I'll get back to you soon.
+                      {isCooling && <span className="text-zinc-500"> (Next send available in {cooldown}s)</span>}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+
+              {status === 'error' && (
+                <motion.div
+                  key="error"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-start gap-3 border-l-4 border-red-600 pl-4 py-3 bg-red-600/10"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5"
+                    strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 flex-shrink-0 mt-0.5">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <div>
+                    <p className="text-red-500 font-black text-xs tracking-[0.18em] uppercase">Send Failed</p>
+                    <p className={`text-xs mt-0.5 ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+                      {errorMsg || 'Something went wrong. Please try again.'}
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
           </motion.form>
         </div>
       </div>

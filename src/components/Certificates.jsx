@@ -2,9 +2,9 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
 import { createPortal } from 'react-dom'
 
-import CCSC from '../assets/Certificate/certificate-CCSC.jpg'
-import Samsung from '../assets/Certificate/Samsung.jpg'
-import Freecodecamp from '../assets/Certificate/Freecodecamp.png'
+import certCCSC from '../assets/Certificate/certificate-CCSC.jpg'
+import certSamsung from '../assets/Certificate/Samsung.jpg'
+import certFreecodecamp from '../assets/Certificate/Freecodecamp.png'
 
 /* ── Viewport config ────────────────────────────────────────────── */
 const VP     = { once: false, amount: 0.15 }
@@ -25,7 +25,7 @@ const CERTS = [
     description:
       'Completed intensive Python programming curriculum covering data structures, algorithms, and applied machine learning fundamentals.',
     accent: '#7c3aed',
-    img: Samsung,
+    img: certSamsung,
   },
   {
     id: 1,
@@ -40,7 +40,7 @@ const CERTS = [
     description:
       'The Cybersecurity Career Starter program provides a comprehensive foundation in cybersecurity fundamentals, equipping participants with essential knowledge and practical skills in network security, ethical hacking, and digital forensics.',
     accent: '#0891b2',
-    img: CCSC,
+    img: certCCSC,
   },
   {
     id: 2,
@@ -55,7 +55,7 @@ const CERTS = [
     description:
       'Mastered responsive web design fundamentals, building accessible and adaptive interfaces using modern HTML5 and CSS3 practices.',
     accent: '#dc2626',
-    img: Freecodecamp,
+    img: certFreecodecamp,
   },
 ]
 

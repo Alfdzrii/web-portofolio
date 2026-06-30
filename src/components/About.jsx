@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
 import {
-  SiLaravel, SiPython, SiCplusplus, SiLinux, SiWireshark,
+  SiLaravel, SiPython, SiCplusplus, SiLinux, SiWireshark, SiVite,
 } from 'react-icons/si'
-import { FaJava, FaNetworkWired, FaSearch } from 'react-icons/fa'
+import { FaJava, FaNetworkWired, FaSearch, FaHtml5, FaCss3Alt, FaReact } from 'react-icons/fa'
+import { IoLogoJavascript } from 'react-icons/io5'
 import { GiMagnifyingGlass } from 'react-icons/gi'
 import { MdSecurity } from 'react-icons/md'
 import pm from '../assets/PM.jpeg'
@@ -12,6 +13,11 @@ const VP = { once: false, amount: 0.2 }
 
 /* ── Skill data ──────────────────────────────────────────────── */
 const SKILLS = [
+  { name: 'HTML',          Icon: FaHtml5,           color: '#E34F26' },
+  { name: 'CSS',           Icon: FaCss3Alt,         color: '#1572B6' },
+  { name: 'JavaScript',    Icon: IoLogoJavascript,  color: '#F7DF1E' },
+  { name: 'React',         Icon: FaReact,           color: '#61DAFB' },
+  { name: 'Vite',          Icon: SiVite,            color: '#646CFF' },
   { name: 'Laravel',       Icon: SiLaravel,         color: '#FF2D20' },
   { name: 'Python',        Icon: SiPython,          color: '#3776AB' },
   { name: 'C++',           Icon: SiCplusplus,       color: '#00599C' },
@@ -226,7 +232,7 @@ export default function About({ dark }) {
             <span className="text-red-600 text-xs font-black tracking-[0.25em] uppercase">Core Skills</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-5 gap-3">
             {SKILLS.map(({ name, Icon, color }, i) => (
               <motion.div
                 key={name}
