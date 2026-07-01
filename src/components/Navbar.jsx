@@ -123,9 +123,9 @@ export default function Navbar({ dark, setDark }) {
             }}
             className="font-['Bebas_Neue',sans-serif] text-2xl tracking-widest select-none flex items-center gap-0.5"
           >
-            <span className="text-red-600">{'<'}</span>
+            <span className="text-red-600">{'{'}</span>
             <span className={dark ? 'text-white' : 'text-black'}>ALFADZRI</span>
-            <span className="text-red-600">{'/>'}</span>
+            <span className="text-red-600">{'}'}</span>
           </button>
 
           {/* Centered desktop links */}
