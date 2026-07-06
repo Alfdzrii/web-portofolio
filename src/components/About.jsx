@@ -66,7 +66,7 @@ export default function About({ dark }) {
           {/* Left: bio */}
           <motion.div initial={{ opacity: 0, x: -60 }} whileInView={{ opacity: 1, x: 0 }} viewport={VP}
             transition={{ duration: 0.65, ease: 'easeOut', delay: 0.1 }}
-            className={`space-y-4 text-sm leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+            className={`space-y-5 text-base leading-loose ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             <p>
               I'm a <span className={`font-black ${dark ? 'text-white' : 'text-black'}`}>Cyber Security Enthusiast</span> based
               in Indonesia. Someone who can easily lose themselves in their work, is sociable and a good team player,

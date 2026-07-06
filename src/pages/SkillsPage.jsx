@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { FiArrowLeft, FiX } from 'react-icons/fi'
 import Navbar from '../components/Navbar'
+import { useTheme } from '../context/ThemeContext'
 import { SKILLS } from '../data/skills'
 
 const VP = { once: false, amount: 0.1 }
@@ -102,7 +103,7 @@ function SkillModal({ skill, dark, onClose }) {
           </h2>
 
           {/* Description */}
-          <p className={`text-sm leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+          <p className={`text-base leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             {description}
           </p>
 
@@ -157,11 +158,10 @@ function SkillCard({ skill, dark, index, onInfo }) {
    SKILLS PAGE
 ═══════════════════════════════════════════════════════════════════ */
 export default function SkillsPage() {
-  const [dark, setDark]     = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
+  const { dark, setDark } = useTheme()
   const [selected, setSelected] = useState(null)
 
   useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }) }, [])
-  useEffect(() => { document.documentElement.classList.toggle('dark', dark) }, [dark])
 
   const bg = dark ? 'bg-zinc-950 text-white' : 'bg-white text-black'
 
@@ -218,7 +218,7 @@ export default function SkillsPage() {
             >
               My <span className="text-red-600">Arsenal</span>
             </h1>
-            <p className={`text-sm mt-4 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+            <p className={`text-base mt-4 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
               A complete overview of technologies, frameworks, and tools I've worked with across
               web development, cybersecurity, and software engineering. Click the{' '}
               <span className={`font-black text-xs px-1 border ${dark ? 'border-zinc-600 text-zinc-300' : 'border-zinc-400 text-zinc-600'}`}>i</span>{' '}

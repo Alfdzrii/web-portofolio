@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { FiArrowLeft } from 'react-icons/fi'
 import Navbar from '../components/Navbar'
+import { useTheme } from '../context/ThemeContext'
 import supervised from '../assets/supervised.png'
 import unsupervised from '../assets/unsupervised.png'
 import thisimg from '../assets/this.png'
@@ -10,8 +12,6 @@ import pentest from '../assets/pentest.png'
 import Keylog from '../assets/Keylogger.png'
 import autopsy from '../assets/Autopsy.png'
 import IDSml from '../assets/Dashboard.png'
-
-import { useState, useEffect } from 'react'
 
 const VP = { once: false, amount: 0.12 }
 
@@ -152,7 +152,7 @@ function ProjectCard({ project, dark, index }) {
             style={{ fontSize: 'clamp(1rem, 1.8vw, 1.35rem)' }}>{project.title}</h3>
           <p className="text-red-500 text-[10px] font-black tracking-[0.15em] uppercase mb-3">{project.subtitle}</p>
           <div className="h-0.5 w-8 bg-red-600 mb-3" />
-          <p className={`text-xs leading-relaxed mb-4 ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>{project.description}</p>
+          <p className={`text-sm leading-relaxed mb-4 ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>{project.description}</p>
           <div className="flex flex-wrap gap-1.5 mb-4">
             {project.stack.map((tech) => (
               <span key={tech} className={`text-[9px] font-black tracking-wider uppercase px-2 py-0.5 border transition-colors duration-150 ${dark ? 'border-zinc-700 text-zinc-400 hover:border-red-600 hover:text-red-400' : 'border-zinc-300 text-zinc-600 hover:border-red-600 hover:text-red-600'}`}>{tech}</span>
@@ -203,11 +203,10 @@ function PagesBgOrnaments({ dark }) {
 }
 
 export default function ProjectsPage() {
-  const [dark, setDark] = useState(() => window.matchMedia('(prefers-color-scheme: dark)').matches)
+  const { dark, setDark } = useTheme()
 
   useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }) }, [])
 
-  useEffect(() => { document.documentElement.classList.toggle('dark', dark) }, [dark])
   const bg = dark ? 'bg-zinc-950 text-white' : 'bg-white text-black'
 
   return (
@@ -260,7 +259,7 @@ export default function ProjectsPage() {
               style={{ fontSize: 'clamp(2rem, 4vw, 3.2rem)' }}>
               Everything I've <span className="text-red-600">Built</span>
             </h1>
-            <p className={`text-sm mt-4 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+            <p className={`text-base mt-4 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
               A complete collection of projects spanning AI/ML, web development, cybersecurity, IoT, and more — each built to solve a real problem.
             </p>
           </motion.div>

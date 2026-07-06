@@ -11,51 +11,88 @@ import CTF1       from '../assets/CTF1.jpeg'
 import CTF2       from '../assets/CTF2.png'
 
 /* ── Viewport config ────────────────────────────────────────────── */
-const VP = { once: false, amount: 0.15 }
-
-/* ── Spring transition ──────────────────────────────────────────── */
+const VP     = { once: false, amount: 0.15 }
 const SPRING = { type: 'spring', stiffness: 280, damping: 34, mass: 0.9 }
 
 /* ── Slide data ─────────────────────────────────────────────────── */
 const SLIDES = [
   {
     id: 0, img: ctrlpDoc,
-    title: 'CTRL P + CTRL F', subtitle: 'Project Manager & Master of Ceremony', tag: 'Seminar',
-    description: 'Serve as Project Manager and Master of Ceremony at CTRL P + CTRL F 2025. Responsible for planning, organizing, leading, and executing the event ',
+    title: 'CTRL P + CTRL F',
+    subtitle: 'Project Manager & Master of Ceremony',
+    tag: 'Seminar',
+    date: '2025',
+    description:
+      'Serve as Project Manager and Master of Ceremony at CTRL P + CTRL F 2025. Responsible for planning, organizing, leading, and executing the event — from initial concept to final delivery.',
   },
   {
     id: 2, img: compstud,
-    title: 'COMPARATIVE STUDY PUFA 2025', subtitle: 'Student Activity', tag: 'Project Manager',
-    description: 'Serve as Project manager at Comstud PUFA 2025 with BEM FMIPA UGM 2025. Responsible for planning, organizing, and executing the event ',
+    title: 'COMPARATIVE STUDY PUFA 2025',
+    subtitle: 'Project Manager',
+    tag: 'Student Activity',
+    date: '2025',
+    description:
+      'Serve as Project Manager at Comstud PUFA 2025 with BEM FMIPA UGM 2025. Responsible for planning, organizing, and executing the event, coordinating cross-team communication and logistics.',
   },
   {
     id: 3, img: eo,
-    title: 'Grand Inaugurations', subtitle: 'Member Of EO Teams at Grand Inaugurations', tag: 'Event',
-    description: 'Served as an event organizer, coordinating logistics and ensuring seamless execution.',
+    title: 'Grand Inaugurations',
+    subtitle: 'Member of EO Team',
+    tag: 'Event',
+    date: '2024',
+    description:
+      'Served as an event organizer at the Grand Inaugurations ceremony, coordinating logistics and ensuring seamless execution from setup through closedown.',
   },
   {
     id: 4, img: logist,
-    title: 'Compsphere 2025', subtitle: 'Person In Charge of Logistics', tag: 'LOGISTICS',
-    description: 'Managed logistics operations including resource allocation and on-ground coordination.',
+    title: 'Compsphere 2025',
+    subtitle: 'Person In Charge of Logistics',
+    tag: 'Logistics',
+    date: '2025',
+    description:
+      'Managed logistics operations including resource allocation, vendor coordination, on-ground execution, and ensuring all materials were available and deployed on schedule.',
   },
   {
     id: 8, img: pufa,
-    title: 'PUFA 2025', subtitle: 'Member of External Division', tag: 'ORGANIZATION',
-    description: 'Active member of the President University faculty Association 2025, contributing to Faculty through programs and Events.',
+    title: 'PUFA 2025',
+    subtitle: 'Member of External Division',
+    tag: 'Organization',
+    date: '2025',
+    description:
+      'Active member of the President University Faculty Association 2025, contributing to faculty programs and events through the External Division — handling outreach, partnerships, and inter-faculty coordination.',
   },
-   {
+  {
     id: 9, img: CTF1,
-    title: 'RANK 6 IN PU CTF BATCH 2024 - ETHICAL HACKING', subtitle: 'Ethical Hacking', tag: 'COMPETITION',
-    description: 'Ranked 6th in the President University CTF Batch 2024 - Ethical Hacking competition, demonstrating strong skills in cybersecurity and ethical hacking.',
+    title: 'PU CTF BATCH 2024 — ETHICAL HACKING',
+    subtitle: 'Rank 6 Competitor',
+    tag: 'Competition',
+    date: '2024',
+    description:
+      'Ranked 6th in the President University CTF Batch 2024 — Ethical Hacking category. Demonstrated strong skills in vulnerability analysis, privilege escalation, and web application security challenges.',
   },
   {
     id: 10, img: CTF2,
-    title: 'RANK 4 IN PU CTF BATCH 2024 - DIGITAL FORENSIC', subtitle: 'Digital Forensic', tag: 'COMPETITION',
-    description: 'Ranked 4th in the President University CTF Batch 2024 - Digital Forensic competition, demonstrating strong skills in digital forensics and cybersecurity.',
+    title: 'PU CTF BATCH 2024 — DIGITAL FORENSIC',
+    subtitle: 'Rank 4 Competitor',
+    tag: 'Competition',
+    date: '2024',
+    description:
+      'Ranked 4th in the President University CTF Batch 2024 — Digital Forensics category. Applied memory forensics, file carving, log analysis, and chain-of-custody methodology to recover and present digital evidence.',
   },
 ]
 
-/*  Background Ornaments  */
+/* ── Tag colour map ─────────────────────────────────────────────── */
+const TAG_COLORS = {
+  Seminar:       '#7c3aed',
+  'Student Activity': '#0891b2',
+  Event:         '#dc2626',
+  Logistics:     '#d97706',
+  Organization:  '#059669',
+  Competition:   '#dc2626',
+}
+const tagBg = (tag) => TAG_COLORS[tag] ?? '#dc2626'
+
+/* ── Background Ornaments ───────────────────────────────────────── */
 function ActivitiesBgOrnaments({ dark }) {
   const col     = dark ? 'rgba(220,38,38,0.20)' : 'rgba(220,38,38,0.16)'
   const colGray = dark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.08)'
@@ -92,127 +129,179 @@ function ActivitiesBgOrnaments({ dark }) {
   )
 }
 
-/* Info (universal — desktop + mobile) */
-function InfoModal({ slide, onClose }) {
+/* ═══════════════════════════════════════════════════════════════════
+   P5R ACTIVITY DETAIL MODAL
+═══════════════════════════════════════════════════════════════════ */
+function ActivityModal({ slide, onClose }) {
   return createPortal(
     <AnimatePresence>
+      {/* ── Backdrop ── */}
       <motion.div
-        key="backdrop"
-        className="fixed inset-0 z-[100] flex items-center justify-center p-6"
-        style={{ background: 'rgba(0,0,0,0.78)', backdropFilter: 'blur(5px)' }}
+        key="activity-backdrop"
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-8"
+        style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(6px)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.18 }}
+        transition={{ duration: 0.2 }}
         onClick={onClose}
       >
+        {/* ── Modal panel ── */}
         <motion.div
-          key="modal-card"
-          className="relative w-full max-w-sm overflow-hidden"
-          style={{ background: '#18181b', border: '2px solid #dc2626', boxShadow: '8px 8px 0 #dc2626' }}
-          initial={{ scale: 0.86, opacity: 0, y: 24 }}
+          key="activity-modal"
+          className="relative w-full max-w-2xl overflow-hidden"
+          style={{
+            background: '#0a0a0a',
+            border: '2px solid #dc2626',
+            boxShadow: '10px 10px 0 #dc2626',
+            borderRadius: 0,
+          }}
+          initial={{ scale: 0.88, opacity: 0, y: 40 }}
           animate={{ scale: 1,    opacity: 1, y: 0  }}
-          exit={{    scale: 0.86, opacity: 0, y: 24 }}
+          exit={{    scale: 0.88, opacity: 0, y: 40 }}
           transition={SPRING}
           onClick={e => e.stopPropagation()}
         >
-          {/* Image header */}
-          <div className="relative h-44 overflow-hidden">
-            <img src={slide.img} alt={slide.title} className="w-full h-full object-cover" />
-            <div className="absolute inset-0"
-              style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)' }} />
-            <span className="absolute bottom-3 left-3 bg-red-600 text-white text-[10px]
-              font-black tracking-[0.2em] uppercase px-2 py-0.5">
+          {/* Red top accent bar */}
+          <div className="h-1.5 w-full bg-red-600" />
+
+          {/* Hero image */}
+          <div className="relative w-full overflow-hidden" style={{ height: '220px' }}>
+            <img
+              src={slide.img}
+              alt={slide.title}
+              className="w-full h-full object-cover"
+              draggable={false}
+            />
+            {/* Gradient over image */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: 'linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0.2) 60%, transparent 100%)' }}
+            />
+            {/* Tag badge */}
+            <span
+              className="absolute top-4 left-4 text-white text-[10px] font-black tracking-[0.22em] uppercase px-3 py-1"
+              style={{ background: tagBg(slide.tag) }}
+            >
               {slide.tag}
             </span>
+            {/* Year badge */}
+            <span className="absolute top-4 right-12 bg-black/70 border border-red-600 text-white text-[10px] font-black tracking-widest uppercase px-2 py-1">
+              {slide.date}
+            </span>
           </div>
+
           {/* Body */}
-          <div className="p-5 space-y-2">
-            <h3 className="text-white font-black text-lg uppercase tracking-tight leading-tight">
+          <div className="px-7 pt-5 pb-7">
+            {/* Red rule */}
+            <div className="h-0.5 w-10 bg-red-600 mb-4" />
+
+            {/* Title */}
+            <h2
+              className="font-['Plus_Jakarta_Sans',sans-serif] font-black uppercase tracking-tighter leading-none text-white mb-2"
+              style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.7rem)' }}
+            >
               {slide.title}
-            </h3>
-            <p className="text-zinc-400 text-[11px] font-semibold tracking-wider uppercase">
+            </h2>
+
+            {/* Role / Subtitle */}
+            <p className="text-red-500 text-xs font-black tracking-[0.2em] uppercase mb-5">
               {slide.subtitle}
             </p>
-            <p className="text-zinc-300 text-sm leading-relaxed pt-1">
+
+            {/* Divider */}
+            <div className="h-px w-full bg-zinc-800 mb-5" />
+
+            {/* Description */}
+            <p className="text-zinc-300 text-base leading-relaxed">
               {slide.description}
             </p>
+
+            {/* Bottom meta row */}
+            <div className="flex items-center gap-3 mt-6 pt-5 border-t border-zinc-800">
+              <span
+                className="text-[10px] font-black tracking-[0.2em] uppercase px-3 py-1"
+                style={{ background: tagBg(slide.tag) + '22', color: tagBg(slide.tag), border: `1px solid ${tagBg(slide.tag)}55` }}
+              >
+                {slide.tag}
+              </span>
+              <span className="text-zinc-600 text-[11px] font-semibold tracking-wider uppercase">
+                {slide.date}
+              </span>
+            </div>
           </div>
+
           {/* Close button */}
           <button
             onClick={onClose}
-            aria-label="Close modal"
-            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center
-              bg-black/60 text-white font-black text-sm border border-zinc-700
+            aria-label="Close activity modal"
+            className="absolute top-5 right-5 w-9 h-9 flex items-center justify-center
+              bg-black/70 text-white font-black text-sm border border-zinc-700
               hover:bg-red-600 hover:border-red-600 transition-colors duration-150"
+            style={{ borderRadius: 0 }}
           >
             ✕
           </button>
         </motion.div>
       </motion.div>
     </AnimatePresence>,
-    document.body
-  )
-}
-
-/* ── Inline circular 'i' button ─────────────────────────────────── */
-function InfoButton({ onClick }) {
-  return (
-    <motion.button
-      onClick={onClick}
-      aria-label="View activity description"
-      className="absolute top-3 right-3 z-40 w-8 h-8 rounded-full
-        flex items-center justify-center
-        bg-black/60 border-2 border-white/30 text-white
-        hover:bg-red-600 hover:border-red-600 transition-colors duration-150
-        backdrop-blur-sm"
-      whileHover={{ scale: 1.15 }}
-      whileTap={{ scale: 0.9 }}
-      transition={{ duration: 0.12 }}
-    >
-      {/* Inline 'i' SVG — no react-icons dependency needed */}
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-        strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
-        className="w-4 h-4">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="16" x2="12" y2="12" />
-        <line x1="12" y1="8"  x2="12.01" y2="8" />
-      </svg>
-    </motion.button>
+    document.body,
   )
 }
 
 /* ── Active Card ────────────────────────────────────────────────── */
-function ActiveCard({ slide, hovered, onInfoClick }) {
+function ActiveCard({ slide, hovered, onCardClick }) {
   return (
-    <div className="relative w-full h-full overflow-hidden select-none" style={{ borderRadius: 0 }}>
+    <div
+      className="relative w-full h-full overflow-hidden cursor-pointer select-none"
+      style={{ borderRadius: 0 }}
+      onClick={onCardClick}
+    >
       {/* Photo */}
-      <img src={slide.img} alt={slide.title}
-        className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+      <img
+        src={slide.img}
+        alt={slide.title}
+        className="absolute inset-0 w-full h-full object-cover"
+        draggable={false}
+      />
 
       {/* Bottom gradient */}
-      <div className="absolute inset-0 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.12) 55%, transparent 100%)' }} />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.12) 55%, transparent 100%)' }}
+      />
 
       {/* Caption */}
-      <div className="absolute bottom-0 left-0 right-0 p-5 lg:p-7 z-10">
-        <span className="inline-block bg-red-600 text-white text-[10px] font-black
-          tracking-[0.2em] uppercase px-2 py-0.5 mb-2">
+      <div className="absolute bottom-0 left-0 right-0 p-5 lg:p-7 z-10 pointer-events-none">
+        <span
+          className="inline-block text-white text-[10px] font-black tracking-[0.2em] uppercase px-2 py-0.5 mb-2"
+          style={{ background: tagBg(slide.tag) }}
+        >
           {slide.tag}
         </span>
-        <h3 className="text-white font-['Plus_Jakarta_Sans',sans-serif] font-black
-          text-xl lg:text-2xl leading-tight uppercase tracking-tight">
+        <h3 className="text-white font-['Plus_Jakarta_Sans',sans-serif] font-black text-xl lg:text-2xl leading-tight uppercase tracking-tight">
           {slide.title}
         </h3>
         <p className="text-zinc-300 text-xs font-semibold tracking-wider uppercase mt-0.5">
           {slide.subtitle}
         </p>
+        {/* Click hint */}
+        <motion.p
+          className="text-red-400 text-[10px] font-black tracking-[0.18em] uppercase mt-2 flex items-center gap-1.5"
+          animate={{ opacity: hovered ? 1 : 0.5 }}
+          transition={{ duration: 0.2 }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          Click to view details
+        </motion.p>
       </div>
 
-      {/* Circular 'i' button — top-right, always visible */}
-      <InfoButton onClick={onInfoClick} />
-
-      {/* Desktop P5R diagonal reveal (md and up only) */}
+      {/* P5R diagonal reveal on hover */}
       <motion.div
         className="absolute inset-0 bg-red-600 z-20 pointer-events-none hidden md:block"
         animate={{
@@ -241,10 +330,10 @@ function ActiveCard({ slide, hovered, onInfoClick }) {
 
 /* ── Carousel ───────────────────────────────────────────────────── */
 function Carousel({ dark }) {
-  const [index,     setIndex] = useState(0)
-  const [direction, setDir]   = useState(1)
-  const [hovered,   setHov]   = useState(false)
-  const [modalOpen, setModal] = useState(false)
+  const [index,            setIndex]           = useState(0)
+  const [direction,        setDir]             = useState(1)
+  const [hovered,          setHov]             = useState(false)
+  const [selectedActivity, setSelectedActivity] = useState(null)
 
   const go = useCallback((next) => {
     const raw = ((next % SLIDES.length) + SLIDES.length) % SLIDES.length
@@ -279,28 +368,34 @@ function Carousel({ dark }) {
       {/* Three-card fixed-height track */}
       <div className="relative w-full" style={{ height: TRACK_H }}>
 
-        {/* PREV ghost */}
+        {/* PREV ghost — navigation only */}
         <motion.div
           key={`prev-${prevIdx}`}
           className="absolute top-1/2 left-0 cursor-pointer overflow-hidden"
-          style={{ width: '22%', aspectRatio: '16/9', borderRadius: 0, translateY: '-50%', transformOrigin: 'center center' }}
+          style={{ width: '22%', aspectRatio: '16/9', borderRadius: 0, translateY: '-50%' }}
           animate={{ opacity: 0.45, scale: 0.75 }}
           transition={SPRING}
-          onClick={prev} title="Previous"
+          onClick={prev}
+          title="Previous"
+          aria-label="Previous activity"
         >
-          <img src={SLIDES[prevIdx].img} alt={SLIDES[prevIdx].title}
-            className="w-full h-full object-cover" draggable={false} />
+          <img
+            src={SLIDES[prevIdx].img}
+            alt={SLIDES[prevIdx].title}
+            className="w-full h-full object-cover"
+            draggable={false}
+          />
           <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         </motion.div>
 
-        {/* ACTIVE center card */}
+        {/* ACTIVE center card — opens modal on click */}
         <div
-          className="absolute top-0 bottom-0 overflow-hidden cursor-pointer"
+          className="absolute top-0 bottom-0 overflow-hidden"
           style={{ left: 'calc(22% + 12px)', right: 'calc(22% + 12px)', borderRadius: 0 }}
           onMouseEnter={() => setHov(true)}
           onMouseLeave={() => setHov(false)}
         >
-          {/* Index counter */}
+          {/* Slide counter */}
           <div
             className="absolute top-3 left-3 z-30 bg-black/70 backdrop-blur-sm
               border border-red-600 px-3 py-1 text-white text-xs font-black tracking-widest"
@@ -323,29 +418,35 @@ function Carousel({ dark }) {
               <ActiveCard
                 slide={SLIDES[index]}
                 hovered={hovered}
-                onInfoClick={() => setModal(true)}
+                onCardClick={() => setSelectedActivity(SLIDES[index])}
               />
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* NEXT ghost */}
+        {/* NEXT ghost — navigation only */}
         <motion.div
           key={`next-${nextIdx}`}
           className="absolute top-1/2 right-0 cursor-pointer overflow-hidden"
-          style={{ width: '22%', aspectRatio: '16/9', borderRadius: 0, translateY: '-50%', transformOrigin: 'center center' }}
+          style={{ width: '22%', aspectRatio: '16/9', borderRadius: 0, translateY: '-50%' }}
           animate={{ opacity: 0.45, scale: 0.75 }}
           transition={SPRING}
-          onClick={next} title="Next"
+          onClick={next}
+          title="Next"
+          aria-label="Next activity"
         >
-          <img src={SLIDES[nextIdx].img} alt={SLIDES[nextIdx].title}
-            className="w-full h-full object-cover" draggable={false} />
+          <img
+            src={SLIDES[nextIdx].img}
+            alt={SLIDES[nextIdx].title}
+            className="w-full h-full object-cover"
+            draggable={false}
+          />
           <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         </motion.div>
       </div>
 
       {/* Caption row */}
-      <div className={`w-full max-w-3xl px-1 ${dark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+      <div className={`w-full max-w-3xl px-1 cursor-default ${dark ? 'text-zinc-300' : 'text-zinc-700'}`}>
         <AnimatePresence mode="wait">
           <motion.p
             key={index}
@@ -375,6 +476,7 @@ function Carousel({ dark }) {
                 height:     '0.5rem',
                 background: i === index ? '#dc2626' : dark ? '#52525b' : '#a1a1aa',
                 display:    'block',
+                borderRadius: 0,
               }}
             />
           ))}
@@ -382,9 +484,12 @@ function Carousel({ dark }) {
         <button onClick={next} className={btnStyle} aria-label="Next slide">→</button>
       </div>
 
-      {/* Universal Info Modal */}
-      {modalOpen && (
-        <InfoModal slide={SLIDES[index]} onClose={() => setModal(false)} />
+      {/* Activity detail modal */}
+      {selectedActivity && (
+        <ActivityModal
+          slide={selectedActivity}
+          onClose={() => setSelectedActivity(null)}
+        />
       )}
     </div>
   )
@@ -419,9 +524,9 @@ export default function Activities({ dark }) {
           >
             Beyond the <span className="text-red-600">Keyboard</span>
           </h2>
-          <p className={`text-sm mb-12 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+          <p className={`text-sm mb-12 max-w-xl leading-relaxed cursor-default ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             A snapshot of events, organizations, and experiences that shaped who I am
-            outside the code editor from campus leadership to community involvement.
+            outside the code editor — from campus leadership to community involvement.
           </p>
         </motion.div>
 

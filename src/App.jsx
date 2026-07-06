@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { ThemeProvider, useTheme } from './context/ThemeContext'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import About from './components/About'
@@ -18,7 +18,8 @@ fl.href = 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght
 document.head.appendChild(fl)
 
 /* ── Home page composite layout ──────────────────────────────── */
-function HomePage({ dark, setDark }) {
+function HomePage() {
+  const { dark, setDark } = useTheme()
   const bg = dark ? 'bg-zinc-950 text-white' : 'bg-white text-black'
   return (
     <div className={`w-full min-h-screen overflow-x-hidden font-[Inter,system-ui,sans-serif] transition-colors duration-300 ${bg}`}>
@@ -35,21 +36,15 @@ function HomePage({ dark, setDark }) {
 
 /* ═══════════════════════════════════════════════════════════════ */
 export default function App() {
-  const [dark, setDark] = useState(
-    () => window.matchMedia('(prefers-color-scheme: dark)').matches
-  )
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark)
-  }, [dark])
-
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage dark={dark} setDark={setDark} />} />
-        <Route path="/projects" element={<ProjectsPage />} />
-        <Route path="/skills"   element={<SkillsPage />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/"         element={<HomePage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/skills"   element={<SkillsPage />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }

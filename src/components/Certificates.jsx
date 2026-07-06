@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react'
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { createPortal } from 'react-dom'
 
 import certCCSC from '../assets/Certificate/certificate-CCSC.jpg'
@@ -32,7 +32,7 @@ const CERTS = [
     title: 'Cybersecurity Career Starter Certification',
     subtitle: 'Cybersecurity',
     issuer: 'Hack & Fix Academy',
-    date: 'may 2026',
+    date: 'May 2026',
     status: 'COMPLETED',
     statusColor: '#0891b2',
     tag: 'CYBERSECURITY',
@@ -47,7 +47,7 @@ const CERTS = [
     title: 'Legacy Responsive Web Design V8',
     subtitle: 'Web Development',
     issuer: 'Freecodecamp',
-    date: 'june 2024',
+    date: 'June 2024',
     status: 'COMPLETED',
     statusColor: '#0891b2',
     tag: 'WEB DEVELOPMENT',
@@ -190,7 +190,7 @@ function LightboxModal({ cert, onClose }) {
           {/* Description strip */}
           <div className="px-6 pb-5">
             <div className="h-px mb-3" style={{ background: cert.accent + '35' }} />
-            <p className="text-zinc-400 text-sm leading-relaxed">{cert.description}</p>
+            <p className="text-zinc-400 text-base leading-relaxed">{cert.description}</p>
           </div>
 
           {/* Close button — P5R sharp style, top-right */}
@@ -212,17 +212,21 @@ function LightboxModal({ cert, onClose }) {
   )
 }
 
-/* ── Certificate Thumbnail Card ──────────────────────────────────── */
-function CertCard({ cert, dark, onOpen }) {
+/* ── Certificate Grid Card ───────────────────────────────────────── */
+function CertCard({ cert, dark, onOpen, index }) {
   return (
     <motion.div
-      className="relative flex-shrink-0 overflow-hidden select-none cursor-pointer"
+      className="relative overflow-hidden select-none cursor-pointer flex flex-col flex-shrink-0
+        snap-center w-[85vw] sm:w-[360px]"
       style={{
-        width: '280px',
         border: `2px solid ${dark ? '#27272a' : '#e4e4e7'}`,
         borderRadius: 0,
         background: dark ? '#0f0f0f' : '#f4f4f5',
       }}
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={VP}
+      transition={{ duration: 0.5, ease: 'easeOut', delay: index * 0.08 }}
       whileHover={{
         scale: 1.02,
         x: -2,
@@ -230,7 +234,6 @@ function CertCard({ cert, dark, onOpen }) {
         boxShadow: `8px 8px 0 #dc2626`,
         borderColor: cert.accent,
       }}
-      transition={{ duration: 0.18, ease: 'easeOut' }}
       onClick={() => onOpen(cert)}
       role="button"
       tabIndex={0}
@@ -238,14 +241,14 @@ function CertCard({ cert, dark, onOpen }) {
       aria-label={`View certificate: ${cert.title}`}
     >
       {/* Accent top bar */}
-      <div className="h-1 w-full" style={{ background: cert.accent }} />
+      <div className="h-1 w-full flex-shrink-0" style={{ background: cert.accent }} />
 
-      {/* Thumbnail image */}
-      <div className="relative w-full overflow-hidden bg-zinc-900" style={{ height: '176px' }}>
+      {/* Thumbnail image — fixed aspect ratio fills card */}
+      <div className="relative w-full overflow-hidden bg-zinc-900" style={{ paddingBottom: '62%' }}>
         <img
           src={cert.img}
           alt={cert.title}
-          className="w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
           draggable={false}
         />
         {/* Gradient overlay */}
@@ -279,11 +282,11 @@ function CertCard({ cert, dark, onOpen }) {
         </motion.div>
       </div>
 
-      {/* Card body */}
-      <div className="px-4 py-3.5">
+      {/* Card body — grows to fill */}
+      <div className="px-4 py-3.5 flex flex-col flex-1">
         <h3
           className={`font-['Plus_Jakarta_Sans',sans-serif] font-black uppercase
-            tracking-tight leading-tight text-[0.9rem] mb-0.5
+            tracking-tight leading-tight text-sm mb-0.5
             ${dark ? 'text-white' : 'text-black'}`}
         >
           {cert.title}
@@ -292,22 +295,22 @@ function CertCard({ cert, dark, onOpen }) {
           style={{ color: cert.accent }}>
           {cert.subtitle}
         </p>
-        <p className="text-[10px] text-zinc-500">{cert.issuer}</p>
-      </div>
+        <p className="text-[10px] text-zinc-500 mb-auto">{cert.issuer}</p>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between px-4 pb-3.5">
-        <span className="text-[10px] font-semibold text-zinc-500">{cert.date}</span>
-        <span
-          className="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5"
-          style={{
-            background: cert.statusColor + '22',
-            color: cert.statusColor,
-            border: `1px solid ${cert.statusColor}55`,
-          }}
-        >
-          {cert.status}
-        </span>
+        {/* Footer */}
+        <div className="flex items-center justify-between mt-3">
+          <span className="text-[10px] font-semibold text-zinc-500">{cert.date}</span>
+          <span
+            className="text-[9px] font-black tracking-[0.18em] uppercase px-2 py-0.5"
+            style={{
+              background: cert.statusColor + '22',
+              color: cert.statusColor,
+              border: `1px solid ${cert.statusColor}55`,
+            }}
+          >
+            {cert.status}
+          </span>
+        </div>
       </div>
 
       {/* Halftone corner decoration */}
@@ -319,78 +322,6 @@ function CertCard({ cert, dark, onOpen }) {
         }}
       />
     </motion.div>
-  )
-}
-
-/* ── Draggable Horizontal Slider ─────────────────────────────────── */
-function CertSlider({ dark, onOpenCert }) {
-  const trackRef = useRef(null)
-
-  const { scrollYProgress } = useScroll({ target: trackRef, offset: ['start end', 'end start'] })
-  const xParallax = useTransform(scrollYProgress, [0, 1], ['4%', '-4%'])
-
-  return (
-    <div className="w-full overflow-hidden">
-      {/* Drag hint */}
-      <motion.div
-        className={`flex items-center gap-2 mb-4 text-xs font-black tracking-[0.2em]
-          uppercase ${dark ? 'text-zinc-500' : 'text-zinc-400'}`}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={VP}
-        transition={{ duration: 0.4, delay: 0.3 }}
-      >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-          strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-          <path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20" />
-        </svg>
-        Drag to explore · Click to expand
-      </motion.div>
-
-      {/* Draggable track */}
-      <motion.div
-        ref={trackRef}
-        drag="x"
-        dragConstraints={{ right: 0, left: -(CERTS.length - 1) * 300 }}
-        dragElastic={0.08}
-        dragTransition={{ bounceStiffness: 280, bounceDamping: 32 }}
-        className="flex gap-5 cursor-grab active:cursor-grabbing w-max pb-4"
-        style={{ x: xParallax }}
-        whileTap={{ cursor: 'grabbing' }}
-      >
-        {CERTS.map((cert) => (
-          <CertCard key={cert.id} cert={cert} dark={dark} onOpen={onOpenCert} />
-        ))}
-
-        {/* Ghost "More coming" card */}
-        <motion.div
-          className="relative flex-shrink-0 flex flex-col items-center justify-center gap-3"
-          style={{
-            width: '180px',
-            minHeight: '280px',
-            border: `2px dashed ${dark ? '#3f3f46' : '#d4d4d8'}`,
-            background: 'transparent',
-            borderRadius: 0,
-          }}
-          whileHover={{ borderColor: '#dc2626', scale: 1.02 }}
-          transition={{ duration: 0.18 }}
-        >
-          <div className={`text-4xl font-black ${dark ? 'text-zinc-700' : 'text-zinc-300'}`}>+</div>
-          <p className={`text-[10px] font-black tracking-[0.2em] uppercase text-center px-4
-            ${dark ? 'text-zinc-600' : 'text-zinc-400'}`}>
-            More<br />Coming Soon
-          </p>
-        </motion.div>
-      </motion.div>
-
-      {/* Scroll progress indicator */}
-      <div className={`h-0.5 w-full mt-1 ${dark ? 'bg-zinc-800' : 'bg-zinc-200'}`}>
-        <motion.div
-          className="h-full bg-red-600"
-          style={{ scaleX: scrollYProgress, transformOrigin: 'left' }}
-        />
-      </div>
-    </div>
   )
 }
 
@@ -430,21 +361,67 @@ export default function Certificates({ dark }) {
           >
             Earned &amp; <span className="text-red-600">Recognized</span>
           </h2>
-          <p className={`text-sm mb-10 max-w-xl leading-relaxed
+          <p className={`text-base mb-10 max-w-xl leading-relaxed
             ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             Credentials that validate my skills across programming, AI, and
-            professional communication — drag to explore, click to expand.
+            professional communication — scroll to explore, click to expand.
           </p>
         </motion.div>
 
-        {/* Draggable card slider */}
+        {/* ── Horizontal Snap Carousel ── */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false, amount: 0.2 }}
-          transition={{ duration: 0.65, ease: 'easeOut', delay: 0.15 }}
+          viewport={VP}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
         >
-          <CertSlider dark={dark} onOpenCert={setActiveCert} />
+          {/* Scroll hint */}
+          <div className={`flex items-center gap-2 mb-4 text-xs font-black tracking-[0.2em] uppercase
+            ${dark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+              strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+            Scroll to explore · Click to expand
+          </div>
+
+          {/* Carousel track — scrollbar hidden via CSS utility */}
+          <div
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-none"
+          >
+            {CERTS.map((cert, i) => (
+              <CertCard
+                key={cert.id}
+                cert={cert}
+                dark={dark}
+                index={i}
+                onOpen={setActiveCert}
+              />
+            ))}
+
+            {/* Ghost "More coming" card */}
+            <div
+              className="relative flex-shrink-0 snap-center flex flex-col items-center
+                justify-center gap-3 w-[85vw] sm:w-[240px]"
+              style={{
+                border: `2px dashed ${dark ? '#3f3f46' : '#d4d4d8'}`,
+                background: 'transparent',
+                borderRadius: 0,
+                minHeight: '280px',
+              }}
+            >
+              <div className={`text-4xl font-black ${dark ? 'text-zinc-700' : 'text-zinc-300'}`}>+</div>
+              <p className={`text-[10px] font-black tracking-[0.2em] uppercase text-center px-4
+                ${dark ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                More<br />Coming Soon
+              </p>
+            </div>
+          </div>
+
+          {/* Scroll progress track */}
+          <div className={`h-0.5 w-full mt-1 ${dark ? 'bg-zinc-800' : 'bg-zinc-200'}`}>
+            <div className="h-full bg-red-600 w-1/4" />
+          </div>
         </motion.div>
 
       </div>

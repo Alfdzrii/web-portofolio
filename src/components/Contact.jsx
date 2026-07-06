@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import emailjs from '@emailjs/browser'
+import ReCAPTCHA from 'react-google-recaptcha'
 
 const VP = { once: false, amount: 0.15 }
 const fadeUp = (delay = 0) => ({
@@ -13,10 +14,48 @@ const fadeUp = (delay = 0) => ({
 /* ── Anti-XSS: strip any HTML/script tags from a string ──────────── */
 function sanitize(str) {
   return str
-    .replace(/<[^>]*>/g, '')          // strip tags
-    .replace(/javascript:/gi, '')     // kill js: protocols
-    .replace(/on\w+\s*=/gi, '')       // kill inline event handlers
+    .replace(/<[^>]*>/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
     .trim()
+}
+
+/* ── P5R Toast ───────────────────────────────────────────────────── */
+function P5Toast({ message, type, onDismiss }) {
+  const isErr = type === 'error'
+  useEffect(() => {
+    const t = setTimeout(onDismiss, 5000)
+    return () => clearTimeout(t)
+  }, [onDismiss])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 60, skewX: '-4deg' }}
+      animate={{ opacity: 1, x: 0, skewX: '0deg' }}
+      exit={{ opacity: 0, x: 60 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="fixed top-6 right-6 z-[200] max-w-xs pointer-events-auto"
+      style={{
+        background: isErr ? '#1a0000' : '#001a00',
+        border: `2px solid ${isErr ? '#dc2626' : '#16a34a'}`,
+        boxShadow: `6px 6px 0 ${isErr ? '#dc2626' : '#16a34a'}`,
+      }}
+    >
+      {/* accent top bar */}
+      <div className="h-1 w-full" style={{ background: isErr ? '#dc2626' : '#16a34a' }} />
+      <div className="flex items-start gap-3 px-4 py-3">
+        <span className="text-lg mt-0.5">{isErr ? '⚠' : '✓'}</span>
+        <div className="flex-1">
+          <p className="font-black text-xs tracking-[0.18em] uppercase"
+            style={{ color: isErr ? '#dc2626' : '#16a34a' }}>
+            {isErr ? 'Error' : 'Success'}
+          </p>
+          <p className="text-xs mt-0.5 text-zinc-300 leading-relaxed">{message}</p>
+        </div>
+        <button onClick={onDismiss} className="text-zinc-500 hover:text-white ml-1 mt-0.5 text-sm">✕</button>
+      </div>
+    </motion.div>
+  )
 }
 
 function ContactBgOrnaments({ dark }) {
@@ -69,7 +108,6 @@ function Field({ label, id, dark, children }) {
 const inputCls = (dark) =>
   `w-full rounded-none bg-transparent border-2 px-4 py-3 text-sm font-medium outline-none transition-all duration-150 focus:border-red-600 focus:ring-1 focus:ring-red-600 focus:outline-none ${dark ? 'border-zinc-700 text-white placeholder:text-zinc-600 hover:border-zinc-500' : 'border-zinc-300 text-black placeholder:text-zinc-400 hover:border-zinc-500'}`
 
-// ── Social Links Data ──────────────────────────────────────────────
 const INFO = [
   {
     label: 'GitHub',
@@ -85,17 +123,21 @@ const INFO = [
   },
 ]
 
-/* ── Cooldown duration in seconds ────────────────────────────────── */
 const COOLDOWN_SECS = 60
+/* reCAPTCHA v2 site key — replace with your real key */
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 
 export default function Contact({ dark }) {
-  const formRef = useRef(null)
+  const formRef      = useRef(null)
+  const captchaRef   = useRef(null)
 
-  // 'idle' | 'sending' | 'success' | 'error'
   const [status, setStatus]       = useState('idle')
   const [errorMsg, setErrorMsg]   = useState('')
-  // cooldown countdown (seconds remaining; 0 = no cooldown)
   const [cooldown, setCooldown]   = useState(0)
+  const [captchaToken, setCaptchaToken] = useState(null)
+  const [captchaErr, setCaptchaErr]     = useState(false)
+  // Toast queue
+  const [toast, setToast] = useState(null) // { message, type }
 
   /* ── Countdown ticker ───────────────────────────────────────────── */
   useEffect(() => {
@@ -109,10 +151,32 @@ export default function Contact({ dark }) {
     return () => clearInterval(id)
   }, [cooldown])
 
+  /* ── reCAPTCHA callbacks ─────────────────────────────────────────── */
+  const onCaptchaChange = (token) => {
+    setCaptchaToken(token)
+    setCaptchaErr(false)
+  }
+  const onCaptchaExpired = () => {
+    setCaptchaToken(null)
+    setToast({ message: 'CAPTCHA expired — please verify again.', type: 'error' })
+  }
+  const onCaptchaError = () => {
+    setCaptchaToken(null)
+    setCaptchaErr(true)
+    setToast({ message: 'CAPTCHA failed to load. Check your connection and try again.', type: 'error' })
+  }
+
   /* ── Submit handler ─────────────────────────────────────────────── */
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (cooldown > 0 || status === 'sending') return
+
+    /* Block send if CAPTCHA not completed */
+    if (!captchaToken) {
+      setCaptchaErr(true)
+      setToast({ message: 'Please complete the CAPTCHA before sending.', type: 'error' })
+      return
+    }
 
     const fd      = new FormData(formRef.current)
     const name    = sanitize(fd.get('name')    || '')
@@ -120,31 +184,36 @@ export default function Contact({ dark }) {
     const subject = sanitize(fd.get('subject') || 'Portfolio Contact')
     const message = sanitize(fd.get('message') || '')
 
-    // Inject sanitized values back for emailjs (it reads the real form fields)
-    // We pass the template params object directly instead of the form ref
     setStatus('sending')
     setErrorMsg('')
 
     try {
       await emailjs.send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        'service_yxgn7of',
+        'template_iydsw3d',
         { from_name: name, from_email: email, subject, message },
-        { publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY },
+        { publicKey: 'zKDHDZW11IIVfFd39' },
       )
       setStatus('success')
       formRef.current?.reset()
-      setCooldown(COOLDOWN_SECS)   // start the 60 s cooldown
+      setCaptchaToken(null)
+      captchaRef.current?.reset()
+      setCooldown(COOLDOWN_SECS)
+      setToast({ message: "Message sent! I'll get back to you soon.", type: 'success' })
     } catch (err) {
-      console.error('EmailJS error:', err)
-      setErrorMsg(err?.text || 'Something went wrong. Please try again.')
+      console.error('EmailJS Error:', err)
+      const msg = err?.text || 'Something went wrong. Please try again.'
+      setErrorMsg(msg)
       setStatus('error')
+      setToast({ message: msg, type: 'error' })
+      /* Reset captcha so user must re-verify */
+      setCaptchaToken(null)
+      captchaRef.current?.reset()
     }
   }
 
-  /* ── Derived button state ───────────────────────────────────────── */
-  const isBusy     = status === 'sending'
-  const isCooling  = cooldown > 0
+  const isBusy      = status === 'sending'
+  const isCooling   = cooldown > 0
   const btnDisabled = isBusy || isCooling
 
   const btnLabel = isBusy
@@ -166,7 +235,7 @@ export default function Contact({ dark }) {
             style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.8rem)' }}>
             Let's <span className="text-red-600">Connect</span>
           </h2>
-          <p className={`text-sm mb-12 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+          <p className={`text-base mb-12 max-w-xl leading-relaxed ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             Have a project in mind or just want to say hello? Drop a message below and I'll get back to you as soon as possible.
           </p>
         </motion.div>
@@ -213,40 +282,51 @@ export default function Contact({ dark }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field label="Name" id="contact-name" dark={dark}>
-                <input
-                  id="contact-name" name="name" type="text" required
-                  placeholder="Your full name"
-                  maxLength={80}
-                  className={inputCls(dark)}
-                />
+                <input id="contact-name" name="name" type="text" required
+                  placeholder="Your full name" maxLength={80} className={inputCls(dark)} />
               </Field>
               <Field label="Email" id="contact-email" dark={dark}>
-                <input
-                  id="contact-email" name="email" type="email" required
-                  placeholder="your@email.com"
-                  maxLength={120}
-                  className={inputCls(dark)}
-                />
+                <input id="contact-email" name="email" type="email" required
+                  placeholder="your@email.com" maxLength={120} className={inputCls(dark)} />
               </Field>
             </div>
 
             <Field label="Subject" id="contact-subject" dark={dark}>
-              <input
-                id="contact-subject" name="subject" type="text" required
-                placeholder="What's this about?"
-                maxLength={120}
-                className={inputCls(dark)}
-              />
+              <input id="contact-subject" name="subject" type="text" required
+                placeholder="What's this about?" maxLength={120} className={inputCls(dark)} />
             </Field>
 
             <Field label="Message" id="contact-message" dark={dark}>
-              <textarea
-                id="contact-message" name="message" required rows={6}
+              <textarea id="contact-message" name="message" required rows={6}
                 placeholder="Tell me about your project, idea, or just say hello..."
-                maxLength={2000}
-                className={`${inputCls(dark)} resize-none`}
-              />
+                maxLength={2000} className={`${inputCls(dark)} resize-none`} />
             </Field>
+
+            {/* ── reCAPTCHA v2 ──────────────────────────────────────── */}
+            <div>
+              <div
+                className={`inline-block transition-all duration-200 ${captchaErr ? 'ring-2 ring-red-600' : ''}`}
+                style={{ borderRadius: 0 }}
+              >
+                <ReCAPTCHA
+                  ref={captchaRef}
+                  sitekey={RECAPTCHA_SITE_KEY}
+                  onChange={onCaptchaChange}
+                  onExpired={onCaptchaExpired}
+                  onErrored={onCaptchaError}
+                  theme={dark ? 'dark' : 'light'}
+                />
+              </div>
+              {captchaErr && (
+                <motion.p
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-2 text-red-500 text-xs font-black tracking-[0.15em] uppercase"
+                >
+                  ⚠ CAPTCHA required — please verify you're human.
+                </motion.p>
+              )}
+            </div>
 
             {/* Submit button */}
             <motion.button
@@ -270,7 +350,6 @@ export default function Contact({ dark }) {
                 </svg>
               )}
               {isBusy && (
-                /* Spinner */
                 <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
                 </svg>
@@ -278,17 +357,13 @@ export default function Contact({ dark }) {
               {btnLabel}
             </motion.button>
 
-            {/* ── Feedback banners ─────────────────────────────────── */}
+            {/* ── Inline feedback banners ───────────────────────────── */}
             <AnimatePresence mode="wait">
               {status === 'success' && (
-                <motion.div
-                  key="success"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex items-start gap-3 border-l-4 border-green-500 pl-4 py-3 bg-green-500/10"
-                >
+                <motion.div key="success"
+                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
+                  className="flex items-start gap-3 border-l-4 border-green-500 pl-4 py-3 bg-green-500/10">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5"
                     strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 flex-shrink-0 mt-0.5">
                     <polyline points="20 6 9 17 4 12"/>
@@ -297,21 +372,17 @@ export default function Contact({ dark }) {
                     <p className="text-green-400 font-black text-xs tracking-[0.18em] uppercase">Message Sent!</p>
                     <p className={`text-xs mt-0.5 ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
                       Thanks for reaching out — I'll get back to you soon.
-                      {isCooling && <span className="text-zinc-500"> (Next send available in {cooldown}s)</span>}
+                      {isCooling && <span className="text-zinc-500"> (Next send in {cooldown}s)</span>}
                     </p>
                   </div>
                 </motion.div>
               )}
 
               {status === 'error' && (
-                <motion.div
-                  key="error"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex items-start gap-3 border-l-4 border-red-600 pl-4 py-3 bg-red-600/10"
-                >
+                <motion.div key="error"
+                  initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
+                  className="flex items-start gap-3 border-l-4 border-red-600 pl-4 py-3 bg-red-600/10">
                   <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5"
                     strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 flex-shrink-0 mt-0.5">
                     <circle cx="12" cy="12" r="10"/>
@@ -331,6 +402,18 @@ export default function Contact({ dark }) {
           </motion.form>
         </div>
       </div>
+
+      {/* ── P5R Toast Portal ──────────────────────────────────────── */}
+      <AnimatePresence>
+        {toast && (
+          <P5Toast
+            key={toast.message}
+            message={toast.message}
+            type={toast.type}
+            onDismiss={() => setToast(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   )
 }

@@ -197,7 +197,7 @@ function ProjectCard({ project, dark, index }) {
           <div className="h-0.5 w-8 bg-red-600 mb-3" />
 
           {/* Description */}
-          <p className={`text-xs leading-relaxed mb-4 ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
+          <p className={`text-sm leading-relaxed mb-4 ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
             {project.description}
           </p>
 
