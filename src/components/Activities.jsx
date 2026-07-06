@@ -129,6 +129,13 @@ function ActivitiesBgOrnaments({ dark }) {
   )
 }
 
+/* ── 12-word truncation helper ─────────────────────────────────── */
+function truncate(text, words = 12) {
+  const parts = text.split(' ')
+  if (parts.length <= words) return text
+  return parts.slice(0, words).join(' ') + '…'
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    P5R ACTIVITY DETAIL MODAL
 ═══════════════════════════════════════════════════════════════════ */
@@ -149,7 +156,7 @@ function ActivityModal({ slide, onClose }) {
         {/* ── Modal panel ── */}
         <motion.div
           key="activity-modal"
-          className="relative w-full max-w-2xl overflow-hidden"
+          className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto"
           style={{
             background: '#0a0a0a',
             border: '2px solid #dc2626',
@@ -166,11 +173,11 @@ function ActivityModal({ slide, onClose }) {
           <div className="h-1.5 w-full bg-red-600" />
 
           {/* Hero image */}
-          <div className="relative w-full overflow-hidden" style={{ height: '220px' }}>
+          <div className="relative w-full overflow-hidden" style={{ maxHeight: '50vh', minHeight: '180px' }}>
             <img
               src={slide.img}
               alt={slide.title}
-              className="w-full h-full object-cover"
+              className="w-full h-auto max-h-[50vh] object-cover block"
               draggable={false}
             />
             {/* Gradient over image */}
@@ -321,7 +328,14 @@ function ActiveCard({ slide, hovered, onCardClick }) {
           animate={{ opacity: hovered ? 1 : 0 }}
           transition={{ duration: 0.2, delay: hovered ? 0.2 : 0 }}
         >
-          {slide.description}
+          {truncate(slide.description, 12)}
+          <span className="block mt-1.5 text-white text-[9px] font-black tracking-[0.18em] uppercase flex items-center gap-1">
+            Click to read more
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+              strokeLinecap="round" strokeLinejoin="round" style={{ width: '10px', height: '10px', display: 'inline' }}>
+              <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+            </svg>
+          </span>
         </motion.p>
       </motion.div>
     </div>
@@ -443,22 +457,6 @@ function Carousel({ dark }) {
           />
           <div className="absolute inset-0 bg-black/40 pointer-events-none" />
         </motion.div>
-      </div>
-
-      {/* Caption row */}
-      <div className={`w-full max-w-3xl px-1 cursor-default ${dark ? 'text-zinc-300' : 'text-zinc-700'}`}>
-        <AnimatePresence mode="wait">
-          <motion.p
-            key={index}
-            className="text-xs lg:text-sm leading-relaxed"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
-          >
-            {SLIDES[index].description}
-          </motion.p>
-        </AnimatePresence>
       </div>
 
       {/* Controls */}
