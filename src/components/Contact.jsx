@@ -359,7 +359,7 @@ export default function Contact({ dark }) {
 
             {/* ── Inline feedback banners ───────────────────────────── */}
             <AnimatePresence mode="wait">
-              {status === 'success' && (
+              {status === 'success' && isCooling && (
                 <motion.div key="success"
                   initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}
@@ -372,7 +372,6 @@ export default function Contact({ dark }) {
                     <p className="text-green-400 font-black text-xs tracking-[0.18em] uppercase">Message Sent!</p>
                     <p className={`text-xs mt-0.5 ${dark ? 'text-zinc-400' : 'text-zinc-600'}`}>
                       Thanks for reaching out — I'll get back to you soon.
-                      {isCooling && <span className="text-zinc-500"> (Next send in {cooldown}s)</span>}
                     </p>
                   </div>
                 </motion.div>
