@@ -47,7 +47,7 @@ const SLIDES = [
     id: 4, img: logist,
     title: 'Compsphere 2025',
     subtitle: 'Person In Charge of Logistics',
-    tag: 'Logistics',
+    tag: 'Event',
     date: '2025',
     description:
       'Managed logistics operations including resource allocation, vendor coordination, on-ground execution, and ensuring all materials were available and deployed on schedule.',
@@ -86,7 +86,6 @@ const TAG_COLORS = {
   Seminar:       '#7c3aed',
   'Student Activity': '#0891b2',
   Event:         '#dc2626',
-  Logistics:     '#d97706',
   Organization:  '#059669',
   Competition:   '#dc2626',
 }

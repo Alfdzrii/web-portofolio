@@ -41,7 +41,8 @@ function AboutBgOrnaments({ dark }) {
 }
 
 export default function About({ dark }) {
-  const skillCard    = dark ? 'bg-zinc-800/80 text-zinc-300' : 'bg-zinc-100 text-zinc-700'
+  const skillCard    = dark ? 'bg-zinc-800/80 text-zinc-300' : 'bg-zinc-200 text-zinc-700'
+  const resolveColor = (c) => c === '__theme__' ? (dark ? '#ffffff' : '#111111') : c
   const previewSkills = SKILLS.slice(0, HOME_SKILL_COUNT)
 
   return (
@@ -121,7 +122,7 @@ export default function About({ dark }) {
                   scale: { duration: 0.15, ease: 'easeOut' }, border: { duration: 0.15, ease: 'easeOut' } }}
                 className={`flex flex-col items-center gap-2 p-4 select-none ${skillCard}`}
                 style={{ border: '2px solid transparent', borderRadius: 0, cursor: 'default' }}>
-                <Icon style={{ color, fontSize: '2rem' }} />
+                <Icon style={{ color: resolveColor(color), fontSize: '2rem' }} />
                 <span className="text-xs font-black uppercase tracking-wider text-center leading-tight">{name}</span>
               </motion.div>
             ))}

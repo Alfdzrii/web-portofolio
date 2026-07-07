@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createPortal } from 'react-dom'
+import { FaChevronLeft, FaChevronRight } from 'react-icons/fa'
 
 import certCCSC from '../assets/Certificate/certificate-CCSC.jpg'
 import certSamsung from '../assets/Certificate/Samsung.jpg'
 import certFreecodecamp from '../assets/Certificate/Freecodecamp.png'
+import certIntroCyber from '../assets/Certificate/Introduction_to_Cybersecurity_certificate_alfadzri.jpg'
 
 /* ── Viewport config ────────────────────────────────────────────── */
 const VP     = { once: false, amount: 0.15 }
@@ -14,7 +16,7 @@ const SPRING = { type: 'spring', stiffness: 280, damping: 34, mass: 0.9 }
 const CERTS = [
   {
     id: 0,
-    title: 'Samsung Innovation Campus',
+    title: 'Samsung Innovation Campus Bootcamp',
     subtitle: 'Python Programming',
     issuer: 'Samsung · Batch 7',
     date: 'November 2025',
@@ -23,7 +25,7 @@ const CERTS = [
     tag: 'PROGRAMMING',
     tagColor: '#7c3aed',
     description:
-      'Completed intensive Python programming curriculum covering data structures, algorithms, and applied machine learning fundamentals.',
+      'Completed intensive Python programming curriculum bootcamp, covering data structures, algorithms, and applied machine learning fundamentals.',
     accent: '#7c3aed',
     img: certSamsung,
   },
@@ -56,6 +58,21 @@ const CERTS = [
       'Mastered responsive web design fundamentals, building accessible and adaptive interfaces using modern HTML5 and CSS3 practices.',
     accent: '#dc2626',
     img: certFreecodecamp,
+  },
+  {
+    id: 3,
+    title: 'Introduction to Cybersecurity',
+    subtitle: 'Cybersecurity Fundamentals',
+    issuer: 'Cisco Networking Academy',
+    date: 'June 2026',
+    status: 'COMPLETED',
+    statusColor: '#16a34a',
+    tag: 'CYBERSECURITY',
+    tagColor: '#0891b2',
+    description:
+      'Comprehensive introduction to cybersecurity concepts including network security, threat landscape, security policies, and risk management fundamentals.',
+    accent: '#0891b2',
+    img: certIntroCyber,
   },
 ]
 
@@ -244,7 +261,7 @@ function CertCard({ cert, dark, onOpen, index }) {
       <div className="h-1 w-full flex-shrink-0" style={{ background: cert.accent }} />
 
       {/* Thumbnail image — fixed aspect ratio fills card */}
-      <div className="relative w-full overflow-hidden bg-zinc-900" style={{ paddingBottom: '62%' }}>
+      <div className="relative w-full overflow-hidden bg-red-700" style={{ paddingBottom: '62%' }}>
         <img
           src={cert.img}
           alt={cert.title}
@@ -330,6 +347,58 @@ function CertCard({ cert, dark, onOpen, index }) {
 ═══════════════════════════════════════════════════════════════════ */
 export default function Certificates({ dark }) {
   const [activeCert, setActiveCert] = useState(null)
+  const [scrollPct, setScrollPct]   = useState(0)
+  const scrollRef = useRef(null)
+
+  /* ── Scroll amount ≈ one card width ──────────────────────────── */
+  const CARD_W = 380
+
+  const scrollBy = useCallback((dir) => {
+    const el = scrollRef.current
+    if (!el) return
+    el.scrollBy({ left: dir * CARD_W, behavior: 'smooth' })
+  }, [])
+
+  /* ── Live progress bar ───────────────────────────────────────── */
+  const onScroll = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setScrollPct(max > 0 ? (el.scrollLeft / max) * 100 : 0)
+  }, [])
+
+  /* ── Non-passive wheel listener with scroll chaining ─────────── */
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    const handleWheel = (e) => {
+      const { scrollLeft, scrollWidth, clientWidth } = el
+      const atLeft  = scrollLeft === 0
+      const atRight = Math.ceil(scrollLeft + clientWidth) >= scrollWidth
+
+      // Let page scroll when already at the carousel edge
+      if ((e.deltaY > 0 && atRight) || (e.deltaY < 0 && atLeft)) return
+
+      // Otherwise hijack vertical scroll → horizontal
+      e.preventDefault()
+      el.scrollBy({ left: e.deltaY, behavior: 'auto' })
+    }
+
+    el.addEventListener('wheel', handleWheel, { passive: false })
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      el.removeEventListener('wheel', handleWheel)
+      el.removeEventListener('scroll', onScroll)
+    }
+  }, [onScroll])
+
+  /* ── Button style helper ─────────────────────────────────────── */
+  const navBtn = `w-9 h-9 flex items-center justify-center border-2 font-black
+    transition-colors duration-150
+    ${ dark
+      ? 'bg-black border-zinc-700 text-zinc-400 hover:border-red-600 hover:text-white hover:bg-red-600'
+      : 'bg-white border-zinc-400 text-zinc-600 hover:border-red-600 hover:text-white hover:bg-red-600' }`
 
   return (
     <section
@@ -341,19 +410,21 @@ export default function Certificates({ dark }) {
 
       <div className="relative z-10 max-w-7xl mx-auto">
 
-        {/* Heading */}
+        {/* ── Heading row + nav buttons ── */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: false, amount: 0.2 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
+          {/* Top row: label only */}
           <div className="flex items-center gap-3 mb-4">
             <span className="h-0.5 w-8 bg-red-600" />
             <span className="text-red-600 text-xs font-black tracking-[0.25em] uppercase">
               Certificates
             </span>
           </div>
+
           <h2
             className={`font-['Plus_Jakarta_Sans',sans-serif] font-black mb-4 uppercase
               tracking-tighter leading-none ${dark ? 'text-white' : 'text-black'}`}
@@ -375,18 +446,50 @@ export default function Certificates({ dark }) {
           viewport={VP}
           transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
         >
-          {/* Scroll hint */}
-          <div className={`flex items-center gap-2 mb-4 text-xs font-black tracking-[0.2em] uppercase
-            ${dark ? 'text-zinc-500' : 'text-zinc-400'}`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-              strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-            Scroll to explore · Click to expand
+          {/* Scroll hint + nav buttons — aligned row */}
+          <div className={`flex justify-between items-center w-full mb-4`}>
+            {/* Left: hint text */}
+            <div className={`flex items-center gap-2 text-xs font-black tracking-[0.2em] uppercase
+              ${dark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+              Scroll or use arrows · Click to expand
+            </div>
+
+            {/* Right: ← → nav buttons */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button
+                id="cert-scroll-left"
+                aria-label="Scroll certificates left"
+                className={navBtn}
+                style={{ borderRadius: 0 }}
+                whileHover={{ x: -2, y: -2, boxShadow: '4px 4px 0 #dc2626' }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ duration: 0.12, ease: 'easeOut' }}
+                onClick={() => scrollBy(-1)}
+              >
+                <FaChevronLeft className="w-3.5 h-3.5" />
+              </motion.button>
+              <motion.button
+                id="cert-scroll-right"
+                aria-label="Scroll certificates right"
+                className={navBtn}
+                style={{ borderRadius: 0 }}
+                whileHover={{ x: 2, y: -2, boxShadow: '-4px 4px 0 #dc2626' }}
+                whileTap={{ scale: 0.92 }}
+                transition={{ duration: 0.12, ease: 'easeOut' }}
+                onClick={() => scrollBy(1)}
+              >
+                <FaChevronRight className="w-3.5 h-3.5" />
+              </motion.button>
+            </div>
           </div>
 
-          {/* Carousel track — scrollbar hidden via CSS utility */}
+          {/* Carousel track */}
           <div
+            ref={scrollRef}
             className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-none"
           >
             {CERTS.map((cert, i) => (
@@ -418,9 +521,12 @@ export default function Certificates({ dark }) {
             </div>
           </div>
 
-          {/* Scroll progress track */}
+          {/* Dynamic progress track */}
           <div className={`h-0.5 w-full mt-1 ${dark ? 'bg-zinc-800' : 'bg-zinc-200'}`}>
-            <div className="h-full bg-red-600 w-1/4" />
+            <div
+              className="h-full bg-red-600 transition-[width] duration-150 ease-out"
+              style={{ width: `${Math.max(scrollPct, 4)}%` }}
+            />
           </div>
         </motion.div>
 

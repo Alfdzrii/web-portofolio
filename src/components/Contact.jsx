@@ -309,6 +309,7 @@ export default function Contact({ dark }) {
                 style={{ borderRadius: 0 }}
               >
                 <ReCAPTCHA
+                  key={dark ? 'dark' : 'light'}
                   ref={captchaRef}
                   sitekey={RECAPTCHA_SITE_KEY}
                   onChange={onCaptchaChange}

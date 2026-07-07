@@ -4,11 +4,11 @@ import { Link } from 'react-router-dom'
 import { FiArrowLeft, FiX } from 'react-icons/fi'
 import Navbar from '../components/Navbar'
 import { useTheme } from '../context/ThemeContext'
-import { SKILLS } from '../data/skills'
+import { skillCategories } from '../data/skills'
 
-const VP = { once: false, amount: 0.1 }
+const VP = { once: false, amount: 0.08 }
 
-/* ── Background ornaments (matches ProjectsPage style) ──────────── */
+/* ── Background ornaments ────────────────────────────────────────── */
 function PagesBgOrnaments({ dark }) {
   const col = dark ? 'rgba(220,38,38,0.15)' : 'rgba(220,38,38,0.10)'
   return (
@@ -33,9 +33,8 @@ function PagesBgOrnaments({ dark }) {
   )
 }
 
-/* ── Info Modal ──────────────────────────────────────────────────── */
+/* ── Skill Info Modal ────────────────────────────────────────────── */
 function SkillModal({ skill, dark, onClose }) {
-  /* Close on Escape */
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handler)
@@ -44,10 +43,10 @@ function SkillModal({ skill, dark, onClose }) {
 
   if (!skill) return null
   const { name, Icon, color, description } = skill
+  const resolveColor = (c) => c === '__theme__' ? (dark ? '#ffffff' : '#111111') : c
 
   return (
     <AnimatePresence>
-      {/* Backdrop */}
       <motion.div
         key="backdrop"
         className="fixed inset-0 z-50 flex items-center justify-center px-4"
@@ -58,7 +57,6 @@ function SkillModal({ skill, dark, onClose }) {
         style={{ background: 'rgba(0,0,0,0.82)' }}
         onClick={onClose}
       >
-        {/* Card — stop propagation so clicking inside doesn't close */}
         <motion.div
           key="card"
           initial={{ opacity: 0, scale: 0.88, y: 24 }}
@@ -90,8 +88,8 @@ function SkillModal({ skill, dark, onClose }) {
 
           {/* Icon — large */}
           <div className="flex items-center justify-center w-20 h-20 mb-6"
-            style={{ border: '2px solid', borderColor: color }}>
-            <Icon style={{ color, fontSize: '2.8rem' }} />
+            style={{ border: '2px solid', borderColor: resolveColor(color) }}>
+            <Icon style={{ color: resolveColor(color), fontSize: '2.8rem' }} />
           </div>
 
           {/* Name */}
@@ -108,7 +106,7 @@ function SkillModal({ skill, dark, onClose }) {
           </p>
 
           {/* Bottom accent */}
-          <div className="mt-6 h-px w-full" style={{ background: `linear-gradient(to right, #dc2626, transparent)` }} />
+          <div className="mt-6 h-px w-full" style={{ background: 'linear-gradient(to right, #dc2626, transparent)' }} />
         </motion.div>
       </motion.div>
     </AnimatePresence>
@@ -118,23 +116,24 @@ function SkillModal({ skill, dark, onClose }) {
 /* ── Skill Card ──────────────────────────────────────────────────── */
 function SkillCard({ skill, dark, index, onInfo }) {
   const { name, Icon, color } = skill
-  const cardBase = dark ? 'bg-zinc-800/80 text-zinc-300' : 'bg-zinc-100 text-zinc-700'
+  const resolveColor = (c) => c === '__theme__' ? (dark ? '#ffffff' : '#111111') : c
+  const cardBase = dark ? 'bg-zinc-800/80 text-zinc-300' : 'bg-zinc-200 text-zinc-700'
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={VP}
       whileHover={{ scale: 1.05, border: '2px solid #dc2626' }}
       transition={{
-        duration: 0.4, delay: index * 0.03, ease: 'easeOut',
+        duration: 0.35, delay: index * 0.025, ease: 'easeOut',
         scale: { duration: 0.15, ease: 'easeOut' },
         border: { duration: 0.15, ease: 'easeOut' },
       }}
-      className={`relative flex flex-col items-center gap-2 p-4 select-none ${cardBase}`}
+      className={`relative flex flex-col items-center gap-2 p-4 select-none cursor-default ${cardBase}`}
       style={{ border: '2px solid transparent', borderRadius: 0 }}
     >
-      <Icon style={{ color, fontSize: '2rem' }} />
+      <Icon style={{ color: resolveColor(color), fontSize: '2rem' }} />
       <span className="text-xs font-black uppercase tracking-wider text-center leading-tight">{name}</span>
 
       {/* Info button */}
@@ -150,6 +149,31 @@ function SkillCard({ skill, dark, index, onInfo }) {
       >
         i
       </button>
+    </motion.div>
+  )
+}
+
+/* ── Category Section Header ─────────────────────────────────────── */
+function CategoryHeader({ title, accent, dark, index }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -24 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={VP}
+      transition={{ duration: 0.45, ease: 'easeOut', delay: index * 0.05 }}
+      className="flex items-center gap-4 mb-5 mt-12 first:mt-0"
+    >
+      {/* Accent slash */}
+      <div className="flex-shrink-0 w-1 h-7" style={{ background: accent }} />
+      <h2
+        className={`font-['Plus_Jakarta_Sans',sans-serif] font-black uppercase tracking-tight leading-none
+          ${dark ? 'text-white' : 'text-black'}`}
+        style={{ fontSize: 'clamp(1rem, 2.2vw, 1.35rem)' }}
+      >
+        {title}
+      </h2>
+      {/* Trailing rule */}
+      <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, ${accent}60, transparent)` }} />
     </motion.div>
   )
 }
@@ -201,7 +225,7 @@ export default function SkillsPage() {
             </motion.div>
           </motion.div>
 
-          {/* Heading */}
+          {/* Page Heading */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
@@ -224,25 +248,67 @@ export default function SkillsPage() {
               <span className={`font-black text-xs px-1 border ${dark ? 'border-zinc-600 text-zinc-300' : 'border-zinc-400 text-zinc-600'}`}>i</span>{' '}
               on any card to learn more.
             </p>
+
+            {/* Skill count badge row */}
+            <div className="flex flex-wrap gap-2 mt-6">
+              {skillCategories.map((cat) => (
+                <a
+                  key={cat.id}
+                  href={`#cat-${cat.id}`}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black
+                    tracking-[0.18em] uppercase border-2 transition-colors duration-150 no-underline
+                    ${dark
+                      ? 'border-zinc-700 text-zinc-400 hover:border-red-600 hover:text-white'
+                      : 'border-zinc-300 text-zinc-500 hover:border-red-600 hover:text-black'}`}
+                  style={{ borderRadius: 0 }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: cat.accent }} />
+                  {cat.title}
+                  <span
+                    className="ml-1 text-[9px] px-1.5 py-px font-black"
+                    style={{ background: cat.accent + '22', color: cat.accent }}
+                  >
+                    {cat.skills.length}
+                  </span>
+                </a>
+              ))}
+            </div>
           </motion.div>
 
-          {/* Skills grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 xl:grid-cols-6 gap-3">
-            {SKILLS.map((skill, i) => (
-              <SkillCard
-                key={skill.name}
-                skill={skill}
+          {/* ── Categorised skill sections ── */}
+          {skillCategories.map((cat, catIdx) => (
+            <section key={cat.id} id={`cat-${cat.id}`}>
+              <CategoryHeader
+                title={cat.title}
+                accent={cat.accent}
                 dark={dark}
-                index={i}
-                onInfo={setSelected}
+                index={catIdx}
               />
-            ))}
-          </div>
+
+              <motion.div
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mb-2"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={VP}
+                transition={{ duration: 0.3, delay: 0.05 }}
+              >
+                {cat.skills.map((skill, i) => (
+                  <SkillCard
+                    key={skill.name}
+                    skill={skill}
+                    dark={dark}
+                    index={i}
+                    onInfo={setSelected}
+                  />
+                ))}
+              </motion.div>
+            </section>
+          ))}
 
         </div>
       </main>
 
-      {/* Modal */}
+      {/* Info Modal */}
       {selected && (
         <SkillModal skill={selected} dark={dark} onClose={() => setSelected(null)} />
       )}
