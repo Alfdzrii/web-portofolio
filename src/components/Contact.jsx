@@ -124,8 +124,8 @@ const INFO = [
 ]
 
 const COOLDOWN_SECS = 60
-/* reCAPTCHA v2 site key — replace with your real key */
-const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
+/* reCAPTCHA v2 site key */
+const RECAPTCHA_SITE_KEY = '6LfrAUctAAAAALWLehzvPnUkDBGSgnHJEX6xVi-v'
 
 export default function Contact({ dark }) {
   const formRef      = useRef(null)
