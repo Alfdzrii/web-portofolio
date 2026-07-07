@@ -125,7 +125,7 @@ const INFO = [
 
 const COOLDOWN_SECS = 60
 /* reCAPTCHA v2 site key */
-const RECAPTCHA_SITE_KEY = '6LcT4EctAAAAAA1F74x5G0TzEw_KxYnU3nQ2i_2i'
+const RECAPTCHA_SITE_KEY = '6LcVmUgtAAAAAFNbRV5N_ymfEj8msTCE2v3VGF6E'
 
 export default function Contact({ dark }) {
   const formRef      = useRef(null)
